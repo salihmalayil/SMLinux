@@ -1,0 +1,13 @@
+/build/
+/desktop/shell/build/
+*.o
+*.obj
+*.so
+*.a
+*.log
+/out/
+*.iso
+*.img
+*.squashfs
+*.zsync
+/work/

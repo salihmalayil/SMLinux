@@ -1,5 +1,12 @@
-# SMLinux-Ubuntu-1.0 — Next big release
+# SMLinux-Ubuntu 1.0 — Planned stable milestone
 
-Status: next major release.
+**Status: planned; not released.**
 
-This directory is for the Ubuntu-based 1.0 milestone, where significant improvements and feature work will be organized.
+Proposed release requirements:
+- Reproducible ISO build scripts and documented dependencies.
+- Successful UEFI/BIOS live boot testing where supported.
+- Successful clean-VM installation and first-boot testing.
+- Verified application launchers and working system controls.
+- Hardware compatibility notes and recovery documentation.
+- Third-party license inventory and an explicit license for original SMLinux code.
+- Published checksums and release notes.
