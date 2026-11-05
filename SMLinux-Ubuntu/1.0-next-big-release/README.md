@@ -1,5 +1,5 @@
 # SMLinux-Ubuntu-1.0 — Next big release
 
-Status: planned next major release.
+Status: next major release.
 
-Use this directory to organize plans, documentation, source, and release artifacts for SMLinux-Ubuntu 1.0 as development progresses.
+This directory is for the Ubuntu-based 1.0 milestone, where significant improvements and feature work will be organized.

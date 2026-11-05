@@ -2,4 +2,4 @@
 
 Status: current release track.
 
-This directory is for SMLinux-Ubuntu 0.1 documentation, source, and release artifacts. The operating system is under development; add details and artifacts here as they become available.
+This directory is for the Ubuntu-based 0.1 release's planning, build notes, and assets. This stage is the active development baseline.

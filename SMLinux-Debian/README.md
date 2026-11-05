@@ -1,5 +1,13 @@
 # SMLinux-Debian
 
-Debian-based variant of SMLinux.
+Debian-based SMLinux edition.
 
-This category is for the Debian edition's planning, source, documentation, and release artifacts. The variant is under development; details and artifacts will be added as they become available.
+## Release tracks
+
+- [0.1 — Current release](0.1-current-release/README.md)
+- [1.0 — Next big release](1.0-next-big-release/README.md)
+- [2.0 — Future prototype](2.0-future-prototype/README.md)
+
+## Development notes
+
+This edition follows a Debian foundation and is organized to support future SMLinux release milestones.
