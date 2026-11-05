@@ -1,11 +1,11 @@
 # SMLinux
 
-SMLinux is a Linux operating system project based on Ubuntu and currently under development.
+SMLinux is a Linux operating system project currently under development, with Ubuntu-, Arch Linux-, and Debian-based variants.
 
-## Release tracks
+## Distribution variants
 
-- [SMLinux-Ubuntu-0.1 — Current release](SMLinux-Ubuntu/0.1-current-release/README.md)
-- [SMLinux-Ubuntu-1.0 — Next big release](SMLinux-Ubuntu/1.0-next-big-release/README.md)
-- [SMLinux-Ubuntu-2.0 — Future prototype](SMLinux-Ubuntu/2.0-future-prototype/README.md)
+- [SMLinux-Ubuntu](SMLinux-Ubuntu/README.md) — release tracks: 0.1 current, 1.0 next major release, and 2.0 future prototype.
+- [SMLinux-Arch](SMLinux-Arch/README.md) — Arch Linux-based variant.
+- [SMLinux-Debian](SMLinux-Debian/README.md) — Debian-based variant.
 
-These are project release tracks; add release artifacts and documentation as they become available. SMLinux is a work in progress.
+These are project categories; add source, documentation, and release artifacts as they become available. SMLinux is a work in progress.
