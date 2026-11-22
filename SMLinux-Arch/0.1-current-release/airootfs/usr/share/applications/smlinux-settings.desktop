@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=SMLinux Settings
+Comment=Network, Bluetooth, sound and desktop settings
+Exec=smlinux-settings
+Icon=preferences-system
+Categories=Settings;
+Terminal=false

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Install SMLinux
+Comment=Install SMLinux to this computer
+Exec=kitty --title "Install SMLinux" -e sudo smlinux-install
+Icon=smlinux
+Categories=System;
+Terminal=false

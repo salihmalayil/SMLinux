@@ -3,7 +3,7 @@
 ## Current release status
 
 - SMLinux-Ubuntu-0.1: current development release
-- SMLinux-Arch-0.1: planned current development release
+- SMLinux-Arch-0.1 "Dawn": **released (pre-release)**: Hyprland + KDE Plasma, live wallpaper, ISO on the Releases page
 - SMLinux-Debian-0.1: planned current development release
 
 ## Next big release

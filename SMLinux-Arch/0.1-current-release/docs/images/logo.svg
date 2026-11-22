@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- smlinux mark: a liquid "S" ribbon, tangerine flowing into mint, on a glass squircle. -->
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#16233A"/>
+      <stop offset="1" stop-color="#0A1020"/>
+    </linearGradient>
+    <linearGradient id="s" x1="0.8" y1="0" x2="0.2" y2="1">
+      <stop offset="0" stop-color="#FFB347"/>
+      <stop offset="0.4" stop-color="#FF7A3D"/>
+      <stop offset="0.62" stop-color="#5EE6D0"/>
+      <stop offset="1" stop-color="#3DDBA8"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.22"/>
+      <stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="16" y="16" width="480" height="480" rx="124" fill="url(#tile)"/>
+  <rect x="16" y="16" width="480" height="480" rx="124" fill="url(#shine)"/>
+  <rect x="16.75" y="16.75" width="478.5" height="478.5" rx="123.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="1.5"/>
+  <path d="M356,150 C312,112 176,112 172,204 C168,284 344,246 344,330 C344,414 200,412 154,362"
+        fill="none" stroke="url(#s)" stroke-width="62" stroke-linecap="round"/>
+  <path d="M340,142 C300,118 196,118 190,190"
+        fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="378" cy="384" r="22" fill="#3DDBA8"/>
+</svg>

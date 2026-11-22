@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+# SMLinux installer: runs archinstall for disks/users, then turns the result into smlinux.
+set -uo pipefail
+[[ $EUID -eq 0 ]] || exec sudo "$0" "$@"
+
+o=$'\e[38;2;255;122;61m'; m=$'\e[38;2;61;219;168m'; r=$'\e[0m'
+say() { echo -e "\n${o}==>${r} $*"; }
+
+clear
+cat <<EOF
+${o}  SMLinux installer${r}
+
+  Step 1: archinstall will ask about language, disk, users and passwords.
+          ${m}Tip:${r} for "Profile" choose ${m}Minimal${r} - SMLinux adds Hyprland and KDE itself.
+          When archinstall asks to chroot into the new system, answer ${m}no${r}.
+  Step 2: this script then installs the SMLinux desktop onto the new system.
+
+EOF
+read -rp "Press Enter to start (Ctrl+C to cancel)... "
+
+archinstall || { echo "archinstall did not finish - nothing more to do."; exit 1; }
+
+# Find the freshly installed system
+TARGET=""
+for dir in /mnt /mnt/archinstall; do
+    if mountpoint -q "$dir" && [[ -f $dir/etc/fstab ]]; then TARGET=$dir; break; fi
+done
+
+if [[ -z $TARGET ]]; then
+    say "The new system is not mounted any more. Pick its root partition:"
+    lsblk -o NAME,SIZE,FSTYPE,LABEL,MOUNTPOINTS
+    read -rp "Root partition (e.g. /dev/sda2 or /dev/nvme0n1p2): " ROOTDEV
+    TARGET=/mnt
+    mount "$ROOTDEV" "$TARGET" || exit 1
+    if [[ ! -f $TARGET/etc/fstab && -d $TARGET/@ ]]; then   # btrfs layout
+        umount "$TARGET" && mount -o subvol=@ "$ROOTDEV" "$TARGET" || exit 1
+    fi
+    [[ -f $TARGET/etc/fstab ]] || { echo "That doesn't look like the installed system."; exit 1; }
+    MOUNTED_BY_US=1
+fi
+say "Installing the SMLinux desktop into $TARGET"
+
+mapfile -t PKGS < <(grep -vE '^(archinstall)$' /usr/share/smlinux/packages.txt)
+arch-chroot "$TARGET" pacman -Sy --needed --noconfirm "${PKGS[@]}" || {
+    echo "Package install failed - check the internet connection and run this again."; exit 1; }
+
+say "Copying SMLinux look & feel"
+mkdir -p "$TARGET/usr/share/backgrounds"
+cp -a /usr/share/backgrounds/smlinux "$TARGET/usr/share/backgrounds/"
+install -Dm644 /usr/share/icons/hicolor/scalable/apps/smlinux.svg \
+    "$TARGET/usr/share/icons/hicolor/scalable/apps/smlinux.svg"
+for s in smlinux-power smlinux-settings smlinux-screenshot smlinux-switch-desktop \
+         smlinux-wallpaper smlinux-plasma-setup; do
+    install -Dm755 "/usr/local/bin/$s" "$TARGET/usr/local/bin/$s"
+done
+# Live wallpaper (KDE plugin + Hyprland launcher) and app-menu entries
+mkdir -p "$TARGET/usr/share/plasma/wallpapers" "$TARGET/usr/share/smlinux"
+cp -a /usr/share/plasma/wallpapers/org.smlinux.liquid "$TARGET/usr/share/plasma/wallpapers/"
+cp -a /usr/share/smlinux/livewallpaper "$TARGET/usr/share/smlinux/"
+for d in smlinux-settings smlinux-switch; do
+    install -Dm644 "/usr/share/applications/$d.desktop" "$TARGET/usr/share/applications/$d.desktop"
+done
+install -Dm644 /usr/share/smlinux/os-release "$TARGET/usr/share/smlinux/os-release"
+install -Dm644 /etc/pacman.d/hooks/zz-smlinux-os-release.hook "$TARGET/etc/pacman.d/hooks/zz-smlinux-os-release.hook"
+install -Dm644 /usr/share/smlinux/os-release "$TARGET/usr/lib/os-release"
+echo smlinux > "$TARGET/etc/hostname"
+install -Dm644 /etc/motd "$TARGET/etc/motd"
+
+# The default user files (Hyprland, Waybar, ...) for new users and for existing ones
+cp -a /etc/skel/. "$TARGET/etc/skel/"
+for home in "$TARGET"/home/*; do
+    [[ -d $home ]] || continue
+    user=$(basename "$home")
+    cp -a /etc/skel/. "$home/"
+    arch-chroot "$TARGET" chown -R "$user:$user" "/home/$user"
+done
+
+arch-chroot "$TARGET" systemctl enable NetworkManager bluetooth >/dev/null 2>&1
+
+[[ ${MOUNTED_BY_US:-0} == 1 ]] && umount -R "$TARGET"
+
+say "${m}Done!${r} Remove the install media and restart."
+say "Log in on the text screen and your desktop starts automatically (Hyprland first;"
+echo "    switch to KDE Plasma any time with the KDE button in the dock)."
+read -rp "Press Enter to close... "

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=SMLinux Plasma setup
+Exec=smlinux-plasma-setup
+OnlyShowIn=KDE;
+NoDisplay=true
+X-KDE-autostart-phase=2

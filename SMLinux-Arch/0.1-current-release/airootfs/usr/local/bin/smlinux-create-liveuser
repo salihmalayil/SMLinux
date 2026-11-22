@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Creates the live-session user on the ISO. Runs once per boot from smlinux-liveuser.service.
+set -e
+if ! id liveuser >/dev/null 2>&1; then
+    useradd -m -G wheel,audio,video,input -s /bin/bash -c "SMLinux Live" liveuser
+fi
+echo 'liveuser:smlinux' | chpasswd

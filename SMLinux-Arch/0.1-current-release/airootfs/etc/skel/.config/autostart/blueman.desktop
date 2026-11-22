@@ -1,0 +1,8 @@
+[Desktop Entry]
+# KDE has its own Bluetooth tray (bluedevil) - don't show blueman's as well.
+Type=Application
+Name=Blueman Applet
+Exec=blueman-applet
+Icon=blueman
+NotShowIn=KDE;
+NoDisplay=true

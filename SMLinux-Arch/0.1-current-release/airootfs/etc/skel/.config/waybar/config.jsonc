@@ -1,0 +1,92 @@
+// SMLinux · Waybar - two bars: a glass top bar and a floating bottom dock.
+[
+  {
+    "name": "top",
+    "layer": "top",
+    "position": "top",
+    "height": 38,
+    "margin-top": 10,
+    "margin-left": 14,
+    "margin-right": 14,
+    "spacing": 8,
+    "modules-left": ["custom/logo", "hyprland/workspaces", "hyprland/window"],
+    "modules-center": ["clock"],
+    "modules-right": ["tray", "network", "pulseaudio", "battery", "custom/power"],
+
+    "custom/logo": {
+      "format": "SMLinux",
+      "tooltip": false,
+      "on-click": "wofi --show drun"
+    },
+    "hyprland/workspaces": {
+      "format": "{id}",
+      "on-click": "activate",
+      "persistent-workspaces": { "*": 4 }
+    },
+    "hyprland/window": {
+      "format": "{}",
+      "max-length": 48,
+      "separate-outputs": true
+    },
+    "clock": {
+      "format": "{:%a %d %b  %H:%M}",
+      "tooltip-format": "<tt>{calendar}</tt>"
+    },
+    "tray": { "spacing": 10, "icon-size": 16 },
+    "network": {
+      "format-wifi": "  {essid}",
+      "format-ethernet": "  Wired",
+      "format-disconnected": "  Offline",
+      "tooltip-format": "{ifname} · {ipaddr}",
+      "on-click": "nm-connection-editor"
+    },
+    "pulseaudio": {
+      "format": "{icon}  {volume}%",
+      "format-muted": "  Muted",
+      "format-icons": { "default": ["", "", ""] },
+      "on-click": "pavucontrol",
+      "scroll-step": 5
+    },
+    "battery": {
+      "format": "{icon}  {capacity}%",
+      "format-charging": "  {capacity}%",
+      "format-icons": ["", "", "", "", ""],
+      "states": { "warning": 25, "critical": 10 }
+    },
+    "custom/power": {
+      "format": "",
+      "tooltip": false,
+      "on-click": "smlinux-power"
+    }
+  },
+  {
+    "name": "dock",
+    "layer": "top",
+    "position": "bottom",
+    "height": 60,
+    "margin-bottom": 12,
+    "exclusive": true,
+    "spacing": 0,
+    "modules-center": [
+      "custom/apps", "custom/terminal", "custom/files", "custom/browser",
+      "custom/settings", "custom/switch", "custom/install"
+    ],
+
+    "custom/switch":   { "format": "KDE", "tooltip-format": "Switch to KDE Plasma", "tooltip": true, "on-click": "smlinux-switch-desktop plasma" },
+
+    "custom/apps":     { "format": "", "tooltip-format": "Apps",     "tooltip": true, "on-click": "wofi --show drun" },
+    "custom/terminal": { "format": "", "tooltip-format": "Terminal", "tooltip": true, "on-click": "kitty" },
+    "custom/files":    { "format": "", "tooltip-format": "Files",    "tooltip": true, "on-click": "thunar" },
+    "custom/browser":  { "format": "", "tooltip-format": "Firefox",  "tooltip": true, "on-click": "firefox" },
+    "custom/settings": { "format": "", "tooltip-format": "Settings", "tooltip": true, "on-click": "smlinux-settings" },
+    "custom/install":  {
+      "format": "",
+      "tooltip-format": "Install SMLinux",
+      "tooltip": true,
+      "exec-if": "test -e /run/archiso",
+      "exec": "echo install",
+      "interval": "once",
+      "on-click": "kitty --title 'Install SMLinux' -e sudo smlinux-install"
+    }
+  }
+]

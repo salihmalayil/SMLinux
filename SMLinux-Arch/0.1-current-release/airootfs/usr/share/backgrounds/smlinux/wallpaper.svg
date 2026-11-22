@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <!-- SMLinux "Liquid Dawn" wallpaper: aurora ribbons, tangerine + mint on deep ink. -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#0E1628"/>
+      <stop offset="0.55" stop-color="#14233A"/>
+      <stop offset="1" stop-color="#10202E"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#FFD08A"/>
+      <stop offset="0.35" stop-color="#FFB347"/>
+      <stop offset="0.7" stop-color="#FF7A3D" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#FF7A3D" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="mintglow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#7DF5CF" stop-opacity="0.9"/>
+      <stop offset="0.6" stop-color="#3DDBA8" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#3DDBA8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="aurora" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#3DDBA8"/>
+      <stop offset="0.45" stop-color="#5EE6D0"/>
+      <stop offset="0.7" stop-color="#FFB347"/>
+      <stop offset="1" stop-color="#FF5E5B"/>
+    </linearGradient>
+    <linearGradient id="ribbonMint" x1="0" y1="0" x2="1" y2="0.3">
+      <stop offset="0" stop-color="#19B38A"/>
+      <stop offset="0.5" stop-color="#3DDBA8"/>
+      <stop offset="1" stop-color="#2A8FB8"/>
+    </linearGradient>
+    <linearGradient id="ribbonOrange" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#FF5E5B"/>
+      <stop offset="0.5" stop-color="#FF7A3D"/>
+      <stop offset="1" stop-color="#FFB347"/>
+    </linearGradient>
+    <linearGradient id="ribbonInk" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#13203A"/>
+      <stop offset="1" stop-color="#080E1A"/>
+    </linearGradient>
+    <filter id="blurXL" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="60"/></filter>
+    <filter id="blurL" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="28"/></filter>
+    <filter id="blurS"><feGaussianBlur stdDeviation="6"/></filter>
+    <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1" fill="#FFFFFF"/>
+    </pattern>
+  </defs>
+
+  <!-- Base -->
+  <rect width="1920" height="1080" fill="url(#sky)"/>
+
+  <!-- Soft light sources -->
+  <circle cx="1460" cy="300" r="360" fill="url(#sun)" opacity="0.55" filter="url(#blurXL)"/>
+  <circle cx="320" cy="760" r="420" fill="url(#mintglow)" opacity="0.45" filter="url(#blurXL)"/>
+
+  <!-- Aurora band -->
+  <path d="M-120,470 C260,300 640,600 1040,420 S1700,180 2040,300"
+        fill="none" stroke="url(#aurora)" stroke-width="150" stroke-linecap="round"
+        opacity="0.55" filter="url(#blurL)"/>
+  <path d="M-120,520 C300,380 660,640 1080,470 S1720,260 2040,360"
+        fill="none" stroke="url(#aurora)" stroke-width="40" stroke-linecap="round"
+        opacity="0.45" filter="url(#blurS)"/>
+
+  <!-- Sun orb + glass rim -->
+  <circle cx="1460" cy="300" r="118" fill="url(#sun)"/>
+  <circle cx="1460" cy="300" r="118" fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="1.5"/>
+  <circle cx="1422" cy="262" r="38" fill="#FFFFFF" opacity="0.18" filter="url(#blurS)"/>
+
+  <!-- Small mint moon -->
+  <circle cx="430" cy="250" r="46" fill="#3DDBA8" opacity="0.85"/>
+  <circle cx="430" cy="250" r="46" fill="none" stroke="#FFFFFF" stroke-opacity="0.4" stroke-width="1.2"/>
+  <circle cx="416" cy="236" r="14" fill="#FFFFFF" opacity="0.3" filter="url(#blurS)"/>
+
+  <!-- Dot texture, upper sky only -->
+  <rect width="1920" height="620" fill="url(#dots)" opacity="0.05"/>
+
+  <!-- Liquid ribbons (back to front) -->
+  <path d="M0,720 C300,620 620,880 980,770 S1600,540 1920,620 L1920,1080 L0,1080 Z"
+        fill="url(#ribbonMint)" opacity="0.92"/>
+  <path d="M0,720 C300,620 620,880 980,770 S1600,540 1920,620"
+        fill="none" stroke="#FFFFFF" stroke-opacity="0.28" stroke-width="1.5"/>
+
+  <path d="M0,850 C380,760 720,980 1120,880 S1660,740 1920,800 L1920,1080 L0,1080 Z"
+        fill="url(#ribbonOrange)" opacity="0.95"/>
+  <path d="M0,850 C380,760 720,980 1120,880 S1660,740 1920,800"
+        fill="none" stroke="#FFFFFF" stroke-opacity="0.32" stroke-width="1.5"/>
+
+  <path d="M0,965 C420,905 880,1050 1300,975 S1800,925 1920,945 L1920,1080 L0,1080 Z"
+        fill="url(#ribbonInk)"/>
+  <path d="M0,965 C420,905 880,1050 1300,975 S1800,925 1920,945"
+        fill="none" stroke="#5EE6D0" stroke-opacity="0.35" stroke-width="1.2"/>
+</svg>

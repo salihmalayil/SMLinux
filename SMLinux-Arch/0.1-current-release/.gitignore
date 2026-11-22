@@ -1,0 +1,6 @@
+# Build output - ISOs go on the GitHub Releases page, not in git
+out/
+work/
+*.iso
+*.iso.part*
+*.sha256

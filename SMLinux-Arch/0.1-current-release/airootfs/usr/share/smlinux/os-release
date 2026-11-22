@@ -1,0 +1,11 @@
+NAME="SMLinux"
+PRETTY_NAME="SMLinux 0.1 (Hyprland + KDE Plasma)"
+ID=smlinux
+ID_LIKE=arch
+VERSION="0.1"
+VERSION_ID=0.1
+VERSION_CODENAME=dawn
+BUILD_ID=rolling
+ANSI_COLOR="38;2;255;122;61"
+LOGO=smlinux
+HOME_URL="https://archlinux.org/"

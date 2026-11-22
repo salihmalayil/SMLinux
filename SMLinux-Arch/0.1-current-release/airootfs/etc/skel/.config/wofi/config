@@ -1,0 +1,12 @@
+show=drun
+width=620
+height=440
+location=center
+prompt=Search apps…
+allow_images=true
+image_size=32
+insensitive=true
+hide_scroll=true
+no_actions=true
+term=kitty
+matching=fuzzy

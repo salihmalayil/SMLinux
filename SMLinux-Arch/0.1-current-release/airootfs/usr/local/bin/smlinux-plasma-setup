@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# One-time SMLinux look for KDE Plasma: dark Breeze, tangerine accent, live wallpaper.
+# Runs from ~/.config/autostart on the first Plasma login.
+flag="$HOME/.config/smlinux/plasma-setup-done"
+[[ -f $flag ]] && exit 0
+sleep 4   # let plasmashell finish starting
+
+plasma-apply-colorscheme BreezeDark >/dev/null 2>&1
+kwriteconfig6 --file kdeglobals --group General --key AccentColor "255,122,61"
+kwriteconfig6 --file kdeglobals --group Icons   --key Theme "Papirus-Dark"
+kwriteconfig6 --file kdeglobals --group General --key font "Inter,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
+
+QDBUS=$(command -v qdbus6 || command -v qdbus || echo /usr/lib/qt6/bin/qdbus)
+"$QDBUS" org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript '
+    desktops().forEach(function (d) {
+        d.wallpaperPlugin = "org.smlinux.liquid";
+    });
+' >/dev/null 2>&1 \
+  || plasma-apply-wallpaperimage /usr/share/backgrounds/smlinux/wallpaper.svg >/dev/null 2>&1
+
+# Let the desktop icon run without the "untrusted launcher" prompt
+chmod +x "$HOME/Desktop/smlinux-switch.desktop" 2>/dev/null
+
+mkdir -p "$(dirname "$flag")"
+touch "$flag"
+notify-send -i smlinux "Welcome to SMLinux · KDE Plasma" "Double-click “Switch to Hyprland” on the desktop to change desktops."
