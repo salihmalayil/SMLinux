@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# smlinux-dnd [toggle|status]  - Do Not Disturb for notifications (mako)
+on() { makoctl mode 2>/dev/null | grep -qx do-not-disturb; }
+case ${1:-toggle} in
+    status)
+        if on; then
+            printf '{"text":"","class":"on","tooltip":"Do Not Disturb is on"}\n'
+        else
+            printf '{"text":"","class":"off","tooltip":"Notifications on"}\n'
+        fi ;;
+    *)
+        makoctl mode -t do-not-disturb >/dev/null
+        on || notify-send -i smlinux "Do Not Disturb is off"
+        pkill -RTMIN+8 waybar ;;
+esac

@@ -1,39 +1,25 @@
-# SMLinux Roadmap
+# SMLinux roadmap
 
-## Project goal
+## Where each edition stands
 
-Create a Linux operating system ecosystem centered around SMLinux with a clear release progression and multi-distribution support.
+| Edition | Status | Next step |
+|---|---|---|
+| **SMLinux-Arch** | **0.1.1 "Dawn" released** (pre-release): Hyprland + KDE Plasma, login screen, one-button switching, live wallpaper, installer, pacman package with updates | Real-hardware testing, then 1.0 |
+| **SMLinux-Ubuntu** | 0.1 prototype: Qt/QML shell + build script (not yet run end to end) | Run the ISO build, boot it in a VM |
+| **SMLinux-Debian** | Not started | Create a live-build config |
 
 ## Release model
+- **0.1:** first working build of an edition.
+- **1.0:** safe to recommend: tested on real hardware, graphical installer, signed releases.
+- **2.0:** next-generation ideas (own shell, snapshots/rollback).
 
-- 0.1 current release: initial working development build
-- 1.0 next big release: major feature and stability milestone
-- 2.0 future prototype: experimental, next-generation prototype
+## SMLinux-Arch: next priorities
+1. Test 0.1.1 on real hardware (Intel, AMD, NVIDIA) and fix what breaks.
+2. Signed [smlinux] repository and ISO (GPG).
+3. Graphical installer (Calamares).
+4. ISO under 2 GB (single-file download).
+5. Automated ISO build + QEMU boot test in CI.
 
-## Distribution roadmap
-
-### Ubuntu
-
-- 0.1 current release: base system and initial package set
-- 1.0 next major release: broader feature set and stability improvements
-- 2.0 future prototype: conceptual next-generation prototype
-
-### Arch Linux
-
-- 0.1 current release: foundational Arch-based environment
-- 1.0 next major release: tuned system with improved UX and tooling
-- 2.0 future prototype: experimental Arch-based design direction
-
-### Debian
-
-- 0.1 current release: Debian-based development baseline
-- 1.0 next major release: production-grade improvements and customization
-- 2.0 future prototype: future-forward experimental environment
-
-## Development priorities
-
-1. Build stable base system architecture
-2. Standardize release naming across editions
-3. Add package, configuration, and kernel documentation
-4. Improve visual and system polish for later versions
-5. Prepare the next major release series
+Details: [SMLinux-Arch 1.0](SMLinux-Arch/1.0-next-big-release/README.md) ·
+[SMLinux-Arch 2.0](SMLinux-Arch/2.0-future-prototype/README.md) ·
+[SMLinux-Ubuntu 1.0](SMLinux-Ubuntu/1.0-next-big-release/README.md)

@@ -1,0 +1,23 @@
+name: SMLinux-Arch checks
+
+on:
+  push:
+    paths:
+      - "SMLinux-Arch/**"
+      - ".github/workflows/smlinux-arch-checks.yml"
+  pull_request:
+    paths:
+      - "SMLinux-Arch/**"
+  workflow_dispatch:
+
+jobs:
+  checks:
+    name: Lint scripts, configs and QML
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - name: Install tools
+        run: pacman -Syu --noconfirm --needed git shellcheck hyprland qt6-declarative python
+      - uses: actions/checkout@v4
+      - name: Run checks
+        run: bash SMLinux-Arch/0.1-current-release/scripts/check.sh

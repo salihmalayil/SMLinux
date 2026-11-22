@@ -4,9 +4,9 @@ SMLinux is a Linux operating system project under active development. The projec
 
 ## Project status
 
-- Ubuntu edition: in active development
-- Arch Linux edition: **0.1 "Dawn" available**: Hyprland + KDE Plasma, one-button desktop switching, live wallpaper ([details](SMLinux-Arch/0.1-current-release/README.md), [download](https://github.com/salihmalayil/SMLinux/releases))
-- Debian edition: planned and under structuring
+- Ubuntu edition: 0.1 prototype (custom Qt/QML shell; ISO build script is experimental)
+- Arch Linux edition: **0.1.1 "Dawn" available**: Hyprland + KDE Plasma, login screen, one-button desktop switching, live wallpaper, installer, updates through pacman ([details](SMLinux-Arch/0.1-current-release/README.md), [download](https://github.com/salihmalayil/SMLinux/releases))
+- Debian edition: not started
 - Release lifecycle: 0.1 current, 1.0 next major release, 2.0 future prototype
 
 ## Distribution variants
@@ -54,3 +54,7 @@ SMLinux/
 └── docs/
     └── project-overview.md
 ```
+
+## License
+
+Original SMLinux code in this repository is MIT licensed: see [LICENSE](LICENSE). The software each edition installs keeps its own licenses.

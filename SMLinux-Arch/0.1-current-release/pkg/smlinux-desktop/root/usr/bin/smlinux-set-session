@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# smlinux-set-session hyprland|plasma
+# Chooses which desktop SDDM starts next. Runs as root; members of the
+# wheel group may run it without a password (see /etc/sudoers.d/smlinux-session).
+set -euo pipefail
+
+case ${1:-} in
+    hyprland|plasma) choice=$1 ;;
+    *) echo "usage: smlinux-set-session hyprland|plasma" >&2; exit 2 ;;
+esac
+[[ $EUID -eq 0 ]] || { echo "smlinux-set-session must run as root (sudo)" >&2; exit 1; }
+
+file="smlinux-$choice.desktop"
+path="/usr/share/smlinux/wayland-sessions/$file"
+
+# Live USB: the session auto-login starts (SDDM logs straight back in after logout)
+live=/etc/sddm.conf.d/20-live.conf
+if [[ -f $live ]]; then
+    sed -i "s|^Session=.*|Session=$file|" "$live"
+fi
+
+# Installed system: the session the login screen pre-selects
+state=/var/lib/sddm/state.conf
+mkdir -p /var/lib/sddm
+touch "$state"
+if grep -q '^Session=' "$state"; then
+    sed -i "s|^Session=.*|Session=$path|" "$state"
+elif grep -q '^\[Last\]' "$state"; then
+    sed -i "/^\[Last\]/a Session=$path" "$state"
+else
+    printf '[Last]\nSession=%s\n' "$path" >> "$state"
+fi
+chown sddm:sddm "$state" 2>/dev/null || true
+echo "Next session: $choice"

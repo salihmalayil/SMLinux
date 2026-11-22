@@ -1,0 +1,41 @@
+// SMLinux · Waybar dock: launchers + open windows. Super+D hides/shows it.
+{
+  "name": "dock",
+  "layer": "top",
+  "position": "bottom",
+  "height": 60,
+  "margin-bottom": 12,
+  "exclusive": true,
+  "spacing": 0,
+  "modules-center": [
+    "custom/apps", "custom/terminal", "custom/files", "custom/browser",
+    "custom/settings", "custom/switch", "custom/install", "wlr/taskbar"
+  ],
+
+  "custom/apps":     { "format": "", "tooltip-format": "Apps (Super+Space)", "tooltip": true, "on-click": "smlinux-menu --show drun" },
+  "custom/terminal": { "format": "", "tooltip-format": "Terminal",           "tooltip": true, "on-click": "kitty" },
+  "custom/files":    { "format": "", "tooltip-format": "Files",              "tooltip": true, "on-click": "thunar" },
+  "custom/browser":  { "format": "", "tooltip-format": "Firefox",            "tooltip": true, "on-click": "firefox" },
+  "custom/settings": { "format": "", "tooltip-format": "Settings",           "tooltip": true, "on-click": "smlinux-settings" },
+  "custom/switch":   { "format": "KDE",    "tooltip-format": "Switch to KDE Plasma (Super+K)", "tooltip": true, "on-click": "smlinux-switch-desktop plasma" },
+  "custom/install": {
+    "format": "",
+    "tooltip-format": "Install SMLinux",
+    "tooltip": true,
+    "exec-if": "test -d /run/archiso",
+    "exec": "echo install",
+    "interval": "once",
+    "on-click": "kitty --title 'Install SMLinux' -e sudo smlinux-install"
+  },
+
+  // Open windows: click to focus, middle-click to close
+  "wlr/taskbar": {
+    "format": "{icon}",
+    "icon-size": 26,
+    "icon-theme": "Papirus-Dark",
+    "tooltip-format": "{title}",
+    "on-click": "activate",
+    "on-click-middle": "close",
+    "markup": false
+  }
+}

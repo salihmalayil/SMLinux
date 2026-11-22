@@ -1,5 +1,6 @@
-# SMLinux-Debian-1.0 — Next big release
+# SMLinux-Debian 1.0
 
-Status: next major release.
+**Status: planned, not started.** Depends on SMLinux-Debian 0.1 existing first.
 
-This directory is for the Debian-based 1.0 release and the major milestones leading up to it.
+Goals: tested on real hardware, signed ISO, security updates from Debian, and the same
+SMLinux desktop experience as SMLinux-Arch 1.0 on a stable base.

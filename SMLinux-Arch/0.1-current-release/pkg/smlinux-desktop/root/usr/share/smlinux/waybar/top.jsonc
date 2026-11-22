@@ -1,0 +1,77 @@
+// SMLinux · Waybar top bar (the dock is dock.jsonc; both are started by smlinux-bar)
+{
+  "name": "top",
+  "layer": "top",
+  "position": "top",
+  "height": 38,
+  "margin-top": 10,
+  "margin-left": 14,
+  "margin-right": 14,
+  "spacing": 8,
+  "modules-left": ["custom/logo", "hyprland/workspaces", "hyprland/window"],
+  "modules-center": ["clock"],
+  "modules-right": ["tray", "custom/dnd", "power-profiles-daemon", "network", "pulseaudio", "battery", "custom/power"],
+
+  "custom/logo": {
+    "format": "SMLinux",
+    "tooltip": false,
+    "on-click": "smlinux-menu --show drun"
+  },
+  "hyprland/workspaces": {
+    "format": "{id}",
+    "on-click": "activate",
+    "persistent-workspaces": { "*": 6 }
+  },
+  "hyprland/window": {
+    "format": "{}",
+    "max-length": 48,
+    "separate-outputs": true
+  },
+  "clock": {
+    "format": "{:%a %d %b  %H:%M}",
+    "tooltip-format": "<tt>{calendar}</tt>"
+  },
+  "tray": { "spacing": 10, "icon-size": 16 },
+  "custom/dnd": {
+    "exec": "smlinux-dnd status",
+    "return-type": "json",
+    "interval": "once",
+    "signal": 8,
+    "on-click": "smlinux-dnd"
+  },
+  "power-profiles-daemon": {
+    "format": "{icon}",
+    "tooltip-format": "Power mode: {profile}\nClick to change",
+    "format-icons": {
+      "default": "",
+      "performance": "",
+      "balanced": "",
+      "power-saver": ""
+    }
+  },
+  "network": {
+    "format-wifi": "  {essid}",
+    "format-ethernet": "  Wired",
+    "format-disconnected": "  Offline",
+    "tooltip-format": "{ifname} · {ipaddr}\nClick to pick a Wi-Fi network",
+    "on-click": "smlinux-wifi"
+  },
+  "pulseaudio": {
+    "format": "{icon}  {volume}%",
+    "format-muted": "  Muted",
+    "format-icons": { "default": ["", "", ""] },
+    "on-click": "pavucontrol",
+    "scroll-step": 5
+  },
+  "battery": {
+    "format": "{icon}  {capacity}%",
+    "format-charging": "  {capacity}%",
+    "format-icons": ["", "", "", "", ""],
+    "states": { "warning": 25, "critical": 10 }
+  },
+  "custom/power": {
+    "format": "",
+    "tooltip": false,
+    "on-click": "smlinux-power"
+  }
+}

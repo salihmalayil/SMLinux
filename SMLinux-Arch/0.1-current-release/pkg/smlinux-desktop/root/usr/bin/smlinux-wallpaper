@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# smlinux-wallpaper [live|still|toggle]  - wallpaper for Hyprland.
+# The still image is always drawn underneath, so you never get a blank screen
+# if the live wallpaper can't run. The live one covers every monitor and
+# pauses itself during fullscreen apps and on battery (see smlinux.lua).
+conf="$HOME/.config/smlinux/wallpaper"
+mode=$(cat "$conf" 2>/dev/null || echo live)
+
+case ${1:-} in
+    live|still) mode=$1 ;;
+    toggle)     if [[ $mode == live ]]; then mode=still; else mode=live; fi ;;
+esac
+mkdir -p "$(dirname "$conf")"
+echo "$mode" > "$conf"
+
+pkill -x swaybg 2>/dev/null
+pkill -f 'smlinux/livewallpaper/livewall.qml' 2>/dev/null
+
+swaybg -i /usr/share/backgrounds/smlinux/wallpaper.png -m fill >/dev/null 2>&1 &
+disown
+
+if [[ $mode == live ]]; then
+    QML=$(command -v qml6 || command -v qml || echo /usr/lib/qt6/bin/qml)
+    # QML_XHR_ALLOW_FILE_READ lets the wallpaper read its pause flag file
+    QT_WAYLAND_SHELL_INTEGRATION=layer-shell QT_QPA_PLATFORM=wayland QML_XHR_ALLOW_FILE_READ=1 \
+        "$QML" /usr/share/smlinux/livewallpaper/livewall.qml >/dev/null 2>&1 &
+    disown
+fi

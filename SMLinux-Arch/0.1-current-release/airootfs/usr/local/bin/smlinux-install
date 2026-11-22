@@ -1,85 +1,254 @@
 #!/usr/bin/env bash
-# SMLinux installer: runs archinstall for disks/users, then turns the result into smlinux.
-set -uo pipefail
+# smlinux-install [--resume]
+# Installs SMLinux to a disk.
+#   1. archinstall handles disks, encryption, users, passwords, language.
+#   2. This script then mounts the new system the way its own fstab describes
+#      (btrfs subvolumes, separate /home, /boot, LUKS all work), fully upgrades
+#      it, and installs the smlinux-desktop package plus the right drivers.
+# --resume skips archinstall, to retry step 2 after fixing a problem.
+# Any failing step stops the installer with a clear message (no false "Done!").
+set -Eeuo pipefail
 [[ $EUID -eq 0 ]] || exec sudo "$0" "$@"
 
-o=$'\e[38;2;255;122;61m'; m=$'\e[38;2;61;219;168m'; r=$'\e[0m'
-say() { echo -e "\n${o}==>${r} $*"; }
+o=$'\e[38;2;255;122;61m'; m=$'\e[38;2;61;219;168m'; red=$'\e[1;31m'; r=$'\e[0m'
+say()  { echo -e "\n${o}==>${r} $*"; }
+note() { echo -e "    $*"; }
+warn() { echo -e "${red}!!${r} $*"; }
 
-clear
-cat <<EOF
+TARGET=/mnt
+MOUNTED_BY_US=0
+OPENED_LUKS=()
+REPO_URL="https://github.com/salihmalayil/SMLinux/releases/download/arch-repo"
+
+cleanup() {
+    if (( MOUNTED_BY_US )); then
+        umount -R "$TARGET" 2>/dev/null || true
+        local n
+        for n in "${OPENED_LUKS[@]}"; do cryptsetup close "$n" 2>/dev/null || true; done
+    fi
+}
+on_error() {
+    local line=$1 cmd=$2
+    echo
+    warn "The installer stopped because a step failed (line $line):"
+    warn "    $cmd"
+    warn "SMLinux is NOT completely installed yet."
+    warn "Fix the problem shown above (often: no internet), then run:  sudo smlinux-install --resume"
+    cleanup
+    read -rp "Press Enter to close... " _ || true
+    exit 1
+}
+trap 'on_error $LINENO "$BASH_COMMAND"' ERR
+
+# ── Step 1: archinstall ────────────────────────────────────────────────────
+if [[ ${1:-} != --resume ]]; then
+    clear
+    cat <<EOF
 ${o}  SMLinux installer${r}
 
-  Step 1: archinstall will ask about language, disk, users and passwords.
-          ${m}Tip:${r} for "Profile" choose ${m}Minimal${r} - SMLinux adds Hyprland and KDE itself.
-          When archinstall asks to chroot into the new system, answer ${m}no${r}.
-  Step 2: this script then installs the SMLinux desktop onto the new system.
+  Step 1: archinstall asks about language, disk, encryption, users and passwords.
+          ${m}Tips:${r}
+          • "Profile": choose ${m}Minimal${r}. SMLinux adds both desktops itself.
+          • Make sure your user is a ${m}superuser${r} (administrator).
+          • "Network configuration": any choice works. SMLinux uses NetworkManager.
+          • At the end, when asked to chroot into the new system, answer ${m}no${r}.
+  Step 2: this script installs the SMLinux desktop onto the new system.
+          You need an internet connection for both steps.
 
 EOF
-read -rp "Press Enter to start (Ctrl+C to cancel)... "
+    read -rp "Press Enter to start (Ctrl+C to cancel)... " _
+    archinstall
+fi
 
-archinstall || { echo "archinstall did not finish - nothing more to do."; exit 1; }
+# ── Step 2a: find and mount the new system ────────────────────────────────
+find_mounted() {
+    local d
+    for d in /mnt /mnt/archinstall; do
+        if mountpoint -q "$d" && [[ -f $d/etc/fstab ]]; then echo "$d"; return 0; fi
+    done
+    return 1
+}
 
-# Find the freshly installed system
-TARGET=""
-for dir in /mnt /mnt/archinstall; do
-    if mountpoint -q "$dir" && [[ -f $dir/etc/fstab ]]; then TARGET=$dir; break; fi
-done
+unlock_luks() {
+    local dev name
+    while read -r dev; do
+        # already unlocked? (it then has a "crypt" child)
+        if lsblk -rno TYPE "$dev" | grep -qx crypt; then continue; fi
+        name="smlinux-crypt-${#OPENED_LUKS[@]}"
+        say "Encrypted partition found: $dev - enter its passphrase to unlock it"
+        if cryptsetup open "$dev" "$name"; then
+            OPENED_LUKS+=("$name")
+        else
+            warn "Couldn't unlock $dev (skipping it)"
+        fi
+    done < <(lsblk -rpno NAME,FSTYPE | awk '$2 == "crypto_LUKS" { print $1 }')
+}
 
-if [[ -z $TARGET ]]; then
-    say "The new system is not mounted any more. Pick its root partition:"
-    lsblk -o NAME,SIZE,FSTYPE,LABEL,MOUNTPOINTS
-    read -rp "Root partition (e.g. /dev/sda2 or /dev/nvme0n1p2): " ROOTDEV
+find_root_candidates() {
+    # prints "device|mount-options" for each partition that holds an Arch install
+    local probe dev fstype opts
+    probe=$(mktemp -d)
+    while read -r dev fstype; do
+        case $fstype in ext4|btrfs|xfs|f2fs) ;; *) continue ;; esac
+        for opts in "" "subvol=@"; do
+            if [[ -n $opts && $fstype != btrfs ]]; then continue; fi
+            if mount -o "ro${opts:+,$opts}" "$dev" "$probe" 2>/dev/null; then
+                if [[ -f $probe/etc/fstab && -f $probe/etc/arch-release && -d $probe/usr/bin ]]; then
+                    echo "$dev|$opts"
+                fi
+                umount "$probe"
+            fi
+        done
+    done < <(lsblk -rpno NAME,FSTYPE | awk 'NF == 2')
+    rmdir "$probe"
+}
+
+if TARGET=$(find_mounted); then
+    say "Found the new system, still mounted at $TARGET"
+else
     TARGET=/mnt
-    mount "$ROOTDEV" "$TARGET" || exit 1
-    if [[ ! -f $TARGET/etc/fstab && -d $TARGET/@ ]]; then   # btrfs layout
-        umount "$TARGET" && mount -o subvol=@ "$ROOTDEV" "$TARGET" || exit 1
+    say "The new system isn't mounted any more - looking for it"
+    unlock_luks
+    mapfile -t cands < <(find_root_candidates)
+    if (( ${#cands[@]} == 0 )); then
+        warn "No installed Arch system found. Did archinstall finish successfully?"
+        false
+    elif (( ${#cands[@]} == 1 )); then
+        pick=${cands[0]}
+    else
+        say "More than one installed system was found. Which one is the new SMLinux?"
+        select pick in "${cands[@]}"; do [[ -n ${pick:-} ]] && break; done
     fi
-    [[ -f $TARGET/etc/fstab ]] || { echo "That doesn't look like the installed system."; exit 1; }
+    rootdev=${pick%%|*}
+    rootopts=${pick#*|}
+    note "Root filesystem: $rootdev ${rootopts:+(${rootopts})}"
+    mount ${rootopts:+-o "$rootopts"} "$rootdev" "$TARGET"
     MOUNTED_BY_US=1
 fi
-say "Installing the SMLinux desktop into $TARGET"
 
-mapfile -t PKGS < <(grep -vE '^(archinstall)$' /usr/share/smlinux/packages.txt)
-arch-chroot "$TARGET" pacman -Sy --needed --noconfirm "${PKGS[@]}" || {
-    echo "Package install failed - check the internet connection and run this again."; exit 1; }
+# Mount everything else the new system's fstab lists (/home, /boot, other
+# btrfs subvolumes...). Already-mounted entries and swap are skipped.
+say "Mounting the rest of the new system from its fstab"
+mount --all --fstab "$TARGET/etc/fstab" --target-prefix "$TARGET"
+findmnt -R -o TARGET,SOURCE,FSTYPE "$TARGET" | sed 's/^/    /'
+[[ -d $TARGET/home ]] || { warn "The new system has no /home"; false; }
 
-say "Copying SMLinux look & feel"
-mkdir -p "$TARGET/usr/share/backgrounds"
-cp -a /usr/share/backgrounds/smlinux "$TARGET/usr/share/backgrounds/"
-install -Dm644 /usr/share/icons/hicolor/scalable/apps/smlinux.svg \
-    "$TARGET/usr/share/icons/hicolor/scalable/apps/smlinux.svg"
-for s in smlinux-power smlinux-settings smlinux-screenshot smlinux-switch-desktop \
-         smlinux-wallpaper smlinux-plasma-setup; do
-    install -Dm755 "/usr/local/bin/$s" "$TARGET/usr/local/bin/$s"
+# ── Step 2b: full upgrade + SMLinux desktop ───────────────────────────────
+say "Refreshing package signing keys, then fully upgrading the new system"
+arch-chroot "$TARGET" pacman -Sy --noconfirm --needed archlinux-keyring
+arch-chroot "$TARGET" pacman -Su --noconfirm
+
+say "Adding the SMLinux update repository"
+if ! grep -q '^\[smlinux\]' "$TARGET/etc/pacman.conf"; then
+    cat >> "$TARGET/etc/pacman.conf" <<EOF
+
+[smlinux]
+# SMLinux desktop package: SMLinux fixes arrive with a normal pacman -Syu
+SigLevel = Optional TrustAll
+Server = $REPO_URL
+EOF
+fi
+arch-chroot "$TARGET" pacman -Syu --noconfirm
+
+say "Installing the SMLinux desktop (Hyprland, KDE Plasma, apps, firmware)"
+pkg=$(ls /opt/smlinux-repo/smlinux-desktop-*.pkg.tar.zst | head -n1)
+cp "$pkg" "$TARGET/var/cache/pacman/pkg/"
+arch-chroot "$TARGET" pacman -U --needed --noconfirm "/var/cache/pacman/pkg/$(basename "$pkg")"
+
+# ── Step 2c: graphics drivers ─────────────────────────────────────────────
+if lspci -d 10de: 2>/dev/null | grep -qiE 'vga|3d|display'; then
+    say "NVIDIA graphics found: installing the NVIDIA driver"
+    nv=(nvidia-utils)
+    for pb in "$TARGET"/usr/lib/modules/*/pkgbase; do
+        [[ -f $pb ]] || continue
+        case $(<"$pb") in
+            linux)     nv+=(nvidia-open) ;;
+            linux-lts) nv+=(nvidia-open-lts) ;;
+            *)         nv+=(nvidia-open-dkms "$(<"$pb")-headers") ;;
+        esac
+    done
+    arch-chroot "$TARGET" pacman -S --needed --noconfirm "${nv[@]}"
+    note "Note: the open NVIDIA driver supports GeForce GTX 16xx / RTX 20xx and newer."
+    note "Older NVIDIA cards need the legacy driver from the AUR (see the Arch wiki)."
+fi
+
+# ── Step 2d: services ─────────────────────────────────────────────────────
+say "Setting up services"
+# Only one network manager: disable the ones archinstall may have enabled
+for s in iwd.service systemd-networkd.service systemd-networkd.socket dhcpcd.service; do
+    if arch-chroot "$TARGET" systemctl is-enabled --quiet "$s" 2>/dev/null; then
+        note "Disabling $s (NetworkManager manages the network now)"
+        arch-chroot "$TARGET" systemctl disable "$s"
+    fi
 done
-# Live wallpaper (KDE plugin + Hyprland launcher) and app-menu entries
-mkdir -p "$TARGET/usr/share/plasma/wallpapers" "$TARGET/usr/share/smlinux"
-cp -a /usr/share/plasma/wallpapers/org.smlinux.liquid "$TARGET/usr/share/plasma/wallpapers/"
-cp -a /usr/share/smlinux/livewallpaper "$TARGET/usr/share/smlinux/"
-for d in smlinux-settings smlinux-switch; do
-    install -Dm644 "/usr/share/applications/$d.desktop" "$TARGET/usr/share/applications/$d.desktop"
+sed -i 's/^ENABLED=.*/ENABLED=yes/' "$TARGET/etc/ufw/ufw.conf"
+arch-chroot "$TARGET" systemctl enable NetworkManager.service bluetooth.service sddm.service \
+    power-profiles-daemon.service cups.socket ufw.service
+arch-chroot "$TARGET" systemctl set-default graphical.target
+
+# Login screen opens on Hyprland (the user can pick KDE Plasma there or switch later)
+arch-chroot "$TARGET" /usr/bin/smlinux-set-session hyprland
+
+# ── Step 2e: keyboard layout for the desktops ─────────────────────────────
+kbconf="$TARGET/etc/X11/xorg.conf.d/00-keyboard.conf"
+if [[ ! -f $kbconf ]]; then
+    keymap=$(sed -n 's/^KEYMAP=//p' "$TARGET/etc/vconsole.conf" 2>/dev/null | tr -d '"' || true)
+    layout=""
+    case ${keymap:-us} in
+        us|"")          layout="" ;;
+        fr_CH*|sg*|ch*) layout="ch" ;;
+        uk)             layout="gb" ;;
+        de*)            layout="de" ;;
+        fr*)            layout="fr" ;;
+        es*)            layout="es" ;;
+        it*)            layout="it" ;;
+        sv*|se*)        layout="se" ;;
+        no*)            layout="no" ;;
+        dk*)            layout="dk" ;;
+        fi*)            layout="fi" ;;
+        pl*)            layout="pl" ;;
+        ru*)            layout="ru" ;;
+        pt*)            layout="pt" ;;
+        br*)            layout="br" ;;
+        trq*|tr*)       layout="tr" ;;
+        jp*)            layout="jp" ;;
+        la-latin1)      layout="latam" ;;
+        cz*)            layout="cz" ;;
+        hu*)            layout="hu" ;;
+        nl*)            layout="nl" ;;
+        be*)            layout="be" ;;
+        *)              layout="${keymap%%-*}" ;;
+    esac
+    if [[ -n $layout ]]; then
+        note "Keyboard layout for the desktops: $layout (from console keymap $keymap)"
+        mkdir -p "$(dirname "$kbconf")"
+        cat > "$kbconf" <<EOF
+Section "InputClass"
+        Identifier "system-keyboard"
+        MatchIsKeyboard "on"
+        Option "XkbLayout" "$layout"
+EndSection
+EOF
+    fi
+fi
+
+# ── Step 2f: check the result ─────────────────────────────────────────────
+say "Checking the installation"
+for f in usr/bin/Hyprland usr/bin/startplasma-wayland usr/bin/sddm usr/bin/smlinux-session; do
+    [[ -e $TARGET/$f ]] || { warn "Missing: /$f"; false; }
 done
-install -Dm644 /usr/share/smlinux/os-release "$TARGET/usr/share/smlinux/os-release"
-install -Dm644 /etc/pacman.d/hooks/zz-smlinux-os-release.hook "$TARGET/etc/pacman.d/hooks/zz-smlinux-os-release.hook"
-install -Dm644 /usr/share/smlinux/os-release "$TARGET/usr/lib/os-release"
-echo smlinux > "$TARGET/etc/hostname"
-install -Dm644 /etc/motd "$TARGET/etc/motd"
+arch-chroot "$TARGET" systemctl is-enabled --quiet sddm.service
+arch-chroot "$TARGET" systemctl is-enabled --quiet NetworkManager.service
+admins=$(arch-chroot "$TARGET" getent group wheel | cut -d: -f4)
+if [[ -z $admins ]]; then
+    warn "No user is in the 'wheel' (administrator) group. sudo and the desktop switch won't work"
+    warn "until you add one:  sudo usermod -aG wheel <name>"
+fi
 
-# The default user files (Hyprland, Waybar, ...) for new users and for existing ones
-cp -a /etc/skel/. "$TARGET/etc/skel/"
-for home in "$TARGET"/home/*; do
-    [[ -d $home ]] || continue
-    user=$(basename "$home")
-    cp -a /etc/skel/. "$home/"
-    arch-chroot "$TARGET" chown -R "$user:$user" "/home/$user"
-done
-
-arch-chroot "$TARGET" systemctl enable NetworkManager bluetooth >/dev/null 2>&1
-
-[[ ${MOUNTED_BY_US:-0} == 1 ]] && umount -R "$TARGET"
-
-say "${m}Done!${r} Remove the install media and restart."
-say "Log in on the text screen and your desktop starts automatically (Hyprland first;"
-echo "    switch to KDE Plasma any time with the KDE button in the dock)."
-read -rp "Press Enter to close... "
+trap - ERR
+cleanup
+say "${m}SMLinux is installed!${r}"
+note "Remove the install media and restart."
+note "The login screen opens on Hyprland. Pick \"SMLinux · KDE Plasma\" there, or switch"
+note "any time with the KDE button in the dock."
+read -rp "Press Enter to close... " _ || true

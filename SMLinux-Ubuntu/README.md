@@ -17,4 +17,4 @@ Ubuntu-based SMLinux edition. This is the active edition for the current prototy
 
 The 0.1 ISO has been assembled and structurally inspected. It has not yet completed a full VM or physical-hardware boot/install test. See the build-status document before using it.
 
-The repository intentionally excludes the multi-gigabyte Ubuntu base ISO and generated root filesystem. A reproducible end-to-end ISO build script is still a development task.
+The repository intentionally excludes the multi-gigabyte Ubuntu base ISO and generated root filesystem. An ISO build script now exists ([scripts/build-iso.sh](scripts/build-iso.sh)) but is experimental and hasn't been run end to end yet.

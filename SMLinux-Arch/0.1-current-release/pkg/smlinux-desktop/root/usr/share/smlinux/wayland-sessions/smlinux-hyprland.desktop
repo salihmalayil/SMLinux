@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=SMLinux · Hyprland
+Comment=Tiling desktop with the SMLinux glass look
+Exec=/usr/bin/smlinux-session hyprland
+Type=Application
+DesktopNames=Hyprland

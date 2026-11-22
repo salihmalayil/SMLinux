@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Scan for Wi-Fi networks and connect (NetworkManager's simple network picker)
+exec kitty --class smlinux-float --title "Wi-Fi" -e nmtui connect

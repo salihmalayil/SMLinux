@@ -6,10 +6,12 @@
 
 ## Implemented in the current source tree
 
-- Qt 6 / QML full-screen desktop shell.
-- App search and launcher tiles.
-- Bottom dock and basic Control Center panel.
-- Qt/C++ launcher integration for common Ubuntu applications.
+- Qt 6 / QML desktop shell that sits under app windows (Openbox + tint2 taskbar session).
+- Live clock and real online/offline indicator.
+- Search across all installed applications (.desktop files, incl. Flatpak and Snap).
+- Launcher tiles and dock that hide apps that aren't installed.
+- Control Center opening the real Network, Sound, Display and Power settings.
+- Installer tile that finds whichever Ubuntu installer exists.
 - SMLinux wallpaper artwork.
 - Initial package selection and SDDM configuration overlay.
 
@@ -21,9 +23,9 @@ A custom ISO was assembled from the Ubuntu base and passed structural inspection
 
 ## Known limitations
 
-- No reproducible end-to-end ISO build script is included yet.
+- The ISO build script (scripts/build-iso.sh) is experimental and hasn't been run end to end.
 - Some desktop tiles rely on external applications and may not work in every environment.
-- The Control Center is a basic mock-up, not a complete settings backend.
+- The shell is not a full desktop shell: window switching uses the tint2 taskbar.
 - Installer and recovery launchers depend on target packages and commands being available.
 - A real VM or physical-machine boot test remains outstanding.
 
@@ -34,4 +36,4 @@ A custom ISO was assembled from the Ubuntu base and passed structural inspection
 3. Test installation and first boot in a clean VM.
 4. Verify every launcher and remove or label placeholders.
 5. Document hardware requirements, known issues, checksums, and recovery steps.
-6. Review third-party licensing and add an explicit license for original SMLinux code.
+6. Review third-party licensing (original SMLinux code is now MIT licensed).

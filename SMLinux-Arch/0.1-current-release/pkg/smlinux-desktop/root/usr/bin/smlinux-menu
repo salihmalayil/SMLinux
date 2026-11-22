@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# wofi with the SMLinux theme, unless the user has their own wofi config.
+# Running it again while it's open closes it (toggle).
+pkill -x wofi && exit 0
+cfg="${XDG_CONFIG_HOME:-$HOME/.config}/wofi"
+args=()
+[[ -f $cfg/config    ]] || args+=(--conf  /usr/share/smlinux/wofi/config)
+[[ -f $cfg/style.css ]] || args+=(--style /usr/share/smlinux/wofi/style.css)
+exec wofi "${args[@]}" "$@"

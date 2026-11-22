@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="docs/images/logo.svg" width="112" alt="smlinux logo">
+  <img src="docs/images/logo.svg" width="112" alt="SMLinux logo">
 </p>
 
-<h1 align="center">SMLinux-Arch 0.1 <sub>"Dawn"</sub></h1>
+<h1 align="center">SMLinux-Arch 0.1.1 <sub>"Dawn"</sub></h1>
 
 <p align="center">
   <b>Two desktops. One button. A wallpaper that moves.</b><br>
@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img alt="version" src="https://img.shields.io/badge/version-0.1%20Dawn-FF7A3D">
+  <img alt="version" src="https://img.shields.io/badge/version-0.1.1%20Dawn-FF7A3D">
   <img alt="base" src="https://img.shields.io/badge/base-Arch%20Linux-3DDBA8">
   <img alt="desktops" src="https://img.shields.io/badge/desktops-Hyprland%20%2B%20KDE%20Plasma-5EE6D0">
   <img alt="license" src="https://img.shields.io/badge/license-MIT-FFB347">
@@ -25,45 +25,50 @@
 
 ## ✨ Highlights
 
-- **Hyprland desktop**: glass top bar, floating dock, gradient app launcher, rounded windows
-  with frosted blur and "liquid" open, close and workspace animations.
-- **KDE Plasma desktop**: Breeze Dark with a tangerine accent, Papirus icons and the same wallpaper.
-- **Switch with one button**: go from Hyprland to KDE and back without touching a config file.
-- **Live wallpaper**: drifting aurora, a pulsing sun, flowing ribbons and twinkling sparkles.
-  It's written in QML: a real KDE wallpaper plugin, and Hyprland runs the same animation.
-- **Own visual identity**: a hand-drawn wallpaper and logo, plus a matching terminal,
-  notifications, lock screen and GTK theme.
-- **Live USB → installed system**: try it live, then install it with one click.
+- **Hyprland desktop**: glass top bar, floating dock with your open apps, gradient app launcher,
+  rounded windows with frosted blur and "liquid" animations, volume/brightness pop-ups.
+- **KDE Plasma desktop**: Breeze Dark with a tangerine accent, Papirus icons, the same wallpaper.
+- **Login screen + one-button switching** between Hyprland and KDE: apps close gracefully first.
+- **Live wallpaper**: drifting aurora, pulsing sun, flowing ribbons. On every monitor, pauses
+  for fullscreen apps and on battery, with a settings page in KDE.
+- **Updates through pacman**: all of SMLinux is the `smlinux-desktop` package, so fixes arrive
+  with a normal `pacman -Syu`.
+- **Ready to use**: Firefox, image viewer, PDF viewer, video player, text editor, app store
+  (Flathub), printing, firewall, power modes, clipboard history.
 
 ## 📥 Download
 
-Get the ISO from the [**Releases**](https://github.com/salihmalayil/SMLinux/releases) page, write it to a USB stick with
-[Ventoy](https://www.ventoy.net/), [Rufus](https://rufus.ie/) or
-[balenaEtcher](https://etcher.balena.io/), and boot from it.
+Get the ISO from the [**Releases**](https://github.com/salihmalayil/SMLinux/releases) page,
+write it to a USB stick with [Ventoy](https://www.ventoy.net/), [Rufus](https://rufus.ie/) or
+[balenaEtcher](https://etcher.balena.io/), and boot from it. If the download comes in two parts
+(`.001` + `.002`), the release notes show the one command that joins them.
 
-The live session logs in automatically as **`liveuser`**, password **`smlinux`**.
+The live session logs in automatically; if anything asks for a password, it's **`smlinux`**.
+On computers with an NVIDIA graphics card the live session starts in KDE Plasma (the installer
+adds the NVIDIA driver, after which Hyprland works too).
 
-> **Testing in a VM?** Hyprland needs 3D acceleration. **QEMU / virt-manager** with
-> *Virtio* video and *3D acceleration* works best. VirtualBox (VMSVGA, 3D on, 128 MB video
-> memory, EFI) may show a black screen; that's VirtualBox's 3D support, not the ISO.
+> **Testing in a VM?** Hyprland needs 3D acceleration: **QEMU / virt-manager** with *Virtio*
+> video and *3D acceleration* works best. Without 3D, SMLinux falls back to KDE Plasma.
 
 ## 🔀 Switching desktops
 
 | From | How |
 |---|---|
-| Hyprland → KDE | Click **KDE** in the dock · **Super+K** · Settings → *Switch to KDE Plasma* |
-| KDE → Hyprland | Double-click **Switch to Hyprland** on the desktop · search "Switch Desktop" |
+| Hyprland → KDE | **KDE** button in the dock · **Super+K** · Settings → *Switch to KDE Plasma* |
+| KDE → Hyprland | **Meta+K** · double-click **Switch Desktop** on the desktop · search "Switch Desktop" |
 
-SMLinux asks you to confirm, saves your choice and logs you out. On the live USB you're
-logged straight back in to the other desktop. If a desktop ever fails to start, SMLinux
-falls back to the other one automatically.
+SMLinux asks first, then logs out *gracefully*: open apps are asked to close, so you can save
+your work. On the live USB you're logged straight back in to the other desktop. On an installed
+system the login screen opens with the other desktop already selected. You can also pick the
+desktop on the login screen. If a desktop crashes right at start, the next login uses the other one.
 
 ## 🌅 Live wallpaper
 
-- **Hyprland:** **Super+W** (or Settings → *Wallpaper*) toggles live and still. The still
-  image is always drawn underneath, so you never get a blank screen.
+- **Hyprland:** **Super+W** (or Settings → *Wallpaper*) toggles live and still. The still image
+  is always underneath, so you never get a blank screen. It pauses during fullscreen apps and
+  on battery power.
 - **KDE:** right-click the desktop → *Configure Desktop and Wallpaper* →
-  *SMLinux Liquid Dawn (live)*.
+  *SMLinux Liquid Dawn (live)*. Settings: pause, speed, battery-saver quality.
 
 ## ⌨️ Keyboard shortcuts (Hyprland)
 
@@ -71,49 +76,71 @@ falls back to the other one automatically.
 |---|---|---|---|---|
 | Super + Space | App launcher | | Super + K | Switch to KDE |
 | Super + Enter | Terminal | | Super + W | Live / still wallpaper |
-| Super + E | Files | | Super + L | Lock |
-| Super + B | Firefox | | Super + Q | Close window |
-| Super + I | Settings | | Super + F / V | Fullscreen / float |
-| Super + Esc | Power menu | | Super + 1–6 | Workspaces |
+| Super + E | Files | | Super + D | Hide / show dock |
+| Super + B | Firefox | | Super + N | Do Not Disturb |
+| Super + I | Settings | | Super + C | Clipboard history |
+| Super + Esc | Power menu | | Super + Shift + C | Colour picker |
+| Super + L | Lock | | Super + Q | Close window |
+| Super + F / V | Fullscreen / float | | Super + 1–6 | Workspaces |
 | Print | Screenshot area | | Shift + Print | Screenshot screen |
+| 3-finger swipe | Change workspace | | | |
 
 ## 💾 Installing to a disk
 
-Click the gradient download icon in the dock, or run `sudo smlinux-install`. It uses
-**archinstall** for the disk, user and password steps: choose the **Minimal** profile and
-answer **no** to the chroot question. Then it installs the SMLinux desktops onto the new
-system. After a reboot, log in and your desktop starts automatically.
+Click the gradient download icon in the dock (or the desktop icon in KDE), or run
+`sudo smlinux-install`. It uses **archinstall** for disks, encryption, users and passwords:
+choose the **Minimal** profile and make your user a **superuser**. Then it:
+
+- mounts the new system exactly as its fstab describes (btrfs subvolumes, separate `/home`,
+  `/boot` and encrypted disks all work),
+- refreshes the signing keys and does a **full** upgrade,
+- installs the `smlinux-desktop` package and adds the [smlinux] update repository,
+- installs the **NVIDIA driver** if you have an NVIDIA card,
+- turns on the login screen, NetworkManager (switching off any other network manager),
+  Bluetooth, power modes, printing and the firewall,
+- applies your keyboard layout to the desktops.
+
+It keeps your chosen hostname, never copies live-USB settings, and stops with a clear message
+if any step fails (`sudo smlinux-install --resume` retries after you fix it).
+
+## 🔧 Customising
+
+Your settings live in your home folder and always win over SMLinux's defaults:
+
+| What | Your file | SMLinux default (updated by pacman) |
+|---|---|---|
+| Hyprland | `~/.config/hypr/hyprland.lua` | `/usr/share/smlinux/hypr/smlinux.lua` |
+| Bar + dock | `~/.config/waybar/config.jsonc` | `/usr/share/smlinux/waybar/` |
+| Launcher | `~/.config/wofi/` | `/usr/share/smlinux/wofi/` |
+| Notifications | `~/.config/mako/config` | `/usr/share/smlinux/mako/config` |
+| Terminal | `~/.config/kitty/kitty.conf` | `/etc/xdg/kitty/kitty.conf` |
 
 ## 🛠️ Building the ISO yourself
 
-You need Arch Linux: a real install, a VM, or **Arch in WSL** on Windows.
-
-```powershell
-wsl --install archlinux
-```
-
-Then, inside Arch:
+You need Arch Linux: a real install, a VM, or **Arch in WSL** on Windows (`wsl --install archlinux`).
 
 ```bash
 pacman-key --init && pacman-key --populate archlinux
-pacman -Syu --noconfirm
 git clone https://github.com/salihmalayil/SMLinux.git
 cd SMLinux/SMLinux-Arch/0.1-current-release
-sudo bash build.sh
+sudo bash build.sh                                   # or, reproducible:
+sudo SMLINUX_SNAPSHOT=2026/11/22 bash build.sh       # uses that day's Arch package versions
 ```
 
-The build downloads about 2.5 GB and takes 10–40 minutes. The ISO lands in `out/` as `smlinux-0.1-x86_64.iso`.
+`out/` then contains the ISO, `SHA256SUMS`, `pkglist-<version>.txt` (every package version in
+the ISO) and `repo/` (the [smlinux] pacman repository). `bash scripts/check.sh` runs the same
+checks as CI (shellcheck, JSON, Hyprland config, QML).
 
 ## 📁 Project layout
 
 | Path | What it is |
 |---|---|
-| `build.sh` | Builds the ISO from Arch's official `releng` profile plus the SMLinux layer |
-| `packages.smlinux` | Extra packages: Hyprland, KDE Plasma, PipeWire, NetworkManager, Firefox, fonts… |
-| `airootfs/etc/skel/.config/` | Desktop configs every user gets: `hypr/`, `waybar/`, `wofi/`, `mako/`, `kitty/`, GTK |
-| `airootfs/usr/share/plasma/wallpapers/org.smlinux.liquid/` | The live wallpaper (QML) |
-| `airootfs/usr/share/backgrounds/smlinux/` | Still wallpaper |
-| `airootfs/usr/local/bin/smlinux-*` | Installer, desktop switch, wallpaper, settings, power menu, screenshots |
+| `pkg/smlinux-desktop/` | The `smlinux-desktop` pacman package: `PKGBUILD` + `root/` (mirrored to `/`) |
+| `airootfs/` | Live-USB-only files: live user, auto-login, installer, firewall |
+| `build.sh` | Builds the package, its repo and the ISO (from Arch's `releng` profile) |
+| `packages.iso` / `packages.remove` | Packages added to / removed from `releng` |
+| `iso/` | Boot-menu artwork |
+| `scripts/check.sh` | Automated checks (also run by GitHub Actions) |
 
 ## 🎨 Palette
 

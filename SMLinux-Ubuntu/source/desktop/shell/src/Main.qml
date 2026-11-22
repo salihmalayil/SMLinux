@@ -6,11 +6,24 @@ ApplicationWindow {
     id: root
     visible: true
     visibility: Window.FullScreen
-    flags: Qt.FramelessWindowHint
+    // Sits under application windows like a desktop background; the tint2
+    // taskbar started by smlinux-session lists and switches open windows.
+    flags: Qt.FramelessWindowHint | Qt.WindowStaysOnBottomHint
     title: "SMLinux"
     color: "#0a0d13"
     property string activeApp: "Desktop"
     property bool quickOpen: false
+    property var now: new Date()
+    property bool online: false
+    property var results: []
+
+    // Clock: refresh every second
+    Timer { interval: 1000; repeat: true; running: true; onTriggered: root.now = new Date() }
+    // Network: real interface state, checked every 5 seconds
+    Timer {
+        interval: 5000; repeat: true; running: true; triggeredOnStart: true
+        onTriggered: root.online = appLauncher.isOnline()
+    }
 
     Rectangle {
         anchors.fill: parent
@@ -40,13 +53,17 @@ ApplicationWindow {
             anchors.fill: parent
             anchors.leftMargin: 24
             anchors.rightMargin: 20
-            Label { text: "◆  SM"; color: "#f2f5fa"; font.pixelSize: 15; font.bold: true }
+            Label { text: "◆  SMLinux"; color: "#f2f5fa"; font.pixelSize: 15; font.bold: true }
             Label { text: "Overview"; color: "#b0bdce"; font.pixelSize: 13 }
             Label { text: root.activeApp; color: "#7889a0"; font.pixelSize: 12 }
             Item { Layout.fillWidth: true }
-            Label { text: "● Online"; color: "#9ab9a5"; font.pixelSize: 11 }
             Label {
-                text: Qt.formatDateTime(new Date(), "ddd, dd MMM") + "   " + Qt.formatDateTime(new Date(), "hh:mm")
+                text: root.online ? "● Online" : "○ Offline"
+                color: root.online ? "#9ab9a5" : "#c99a8a"
+                font.pixelSize: 11
+            }
+            Label {
+                text: Qt.formatDateTime(root.now, "ddd, dd MMM") + "   " + Qt.formatDateTime(root.now, "hh:mm")
                 color: "#e6ebf3"
                 font.pixelSize: 12
             }
@@ -95,23 +112,58 @@ ApplicationWindow {
                     color: "#edf2fa"
                     placeholderTextColor: "#75869d"
                     background: Item {}
+                    onTextChanged: root.results = appLauncher.searchApps(text, 6)
                     onAccepted: {
-                        const q = text.toLowerCase()
-                        if (q.includes("file")) appLauncher.launch("files")
-                        else if (q.includes("web") || q.includes("fire")) appLauncher.launch("browser")
-                        else if (q.includes("terminal")) appLauncher.launch("terminal")
-                        else if (q.includes("setting")) appLauncher.launch("settings")
-                        else if (q.includes("monitor")) appLauncher.launch("monitor")
-                        else if (q.includes("store") || q.includes("software")) appLauncher.launch("store")
-                        else if (q.includes("update")) appLauncher.launch("updates")
-                        else if (q.includes("share")) appLauncher.launch("share")
-                        else if (q.includes("wine") || q.includes("windows")) appLauncher.launch("windows")
-                        else if (q.includes("recover")) appLauncher.launch("recovery")
-                        else if (q.includes("install")) appLauncher.launch("installer")
+                        if (root.results.length > 0)
+                            appLauncher.launchDesktopFile(root.results[0].file)
                         text = ""
                     }
                 }
                 Label { text: "ENTER"; color: "#71839b"; font.pixelSize: 10 }
+            }
+        }
+
+        // Search results: installed applications matching the query
+        Column {
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: Math.min(parent.width, 650)
+            spacing: 6
+            visible: searchField.text.length > 0
+            Repeater {
+                model: root.results
+                delegate: Rectangle {
+                    id: resultRow
+                    required property var modelData
+                    required property int index
+                    width: parent.width
+                    height: 44
+                    radius: 12
+                    color: rm.containsMouse || index === 0 ? "#29394f" : "#172130"
+                    border.color: "#2d3c50"
+                    Column {
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.left: parent.left
+                        anchors.leftMargin: 16
+                        Label { text: resultRow.modelData.name; color: "#eef2f8"; font.pixelSize: 13; font.bold: true }
+                        Label { text: resultRow.modelData.comment; color: "#8797ac"; font.pixelSize: 10; elide: Text.ElideRight; width: 560 }
+                    }
+                    MouseArea {
+                        id: rm
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            appLauncher.launchDesktopFile(resultRow.modelData.file)
+                            searchField.text = ""
+                        }
+                    }
+                }
+            }
+            Label {
+                visible: root.results.length === 0
+                text: "No apps found"
+                color: "#75869d"
+                font.pixelSize: 12
             }
         }
 
@@ -135,6 +187,7 @@ ApplicationWindow {
                     {t:"Install SMLinux",s:"Set up this computer",i:"⬇",id:"installer"}
                 ]
                 delegate: Rectangle {
+                    visible: appLauncher.available(modelData.id)
                     Layout.preferredWidth: 205
                     Layout.preferredHeight: 82
                     radius: 15
@@ -181,7 +234,7 @@ ApplicationWindow {
     Rectangle {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 20
+        anchors.bottomMargin: 56          // leaves room for the tint2 taskbar
         width: dock.implicitWidth + 30
         height: 72
         radius: 22
@@ -201,6 +254,7 @@ ApplicationWindow {
                     {i:"⌁",id:"monitor",n:"Monitor"}
                 ]
                 delegate: Rectangle {
+                    visible: appLauncher.available(modelData.id)
                     width: 52
                     height: 52
                     anchors.verticalCenter: parent.verticalCenter
@@ -248,23 +302,33 @@ ApplicationWindow {
             Label { text: "System controls"; color: "#8e9db2"; font.pixelSize: 11 }
             Repeater {
                 model: [
-                    "Network · Ubuntu services",
-                    "Sound · system audio",
-                    "Display · system settings",
-                    "Power · balanced"
+                    {t: "Network", id: "settings-network"},
+                    {t: "Sound", id: "settings-sound"},
+                    {t: "Display", id: "settings-display"},
+                    {t: "Power", id: "settings-power"}
                 ]
                 delegate: Rectangle {
+                    id: qcRow
+                    required property var modelData
                     width: 236
                     height: 38
                     radius: 10
-                    color: "#29394e"
+                    color: qcm.containsMouse ? "#3a4d68" : "#29394e"
+                    visible: appLauncher.available(modelData.id)
                     Label {
                         anchors.left: parent.left
                         anchors.leftMargin: 11
                         anchors.verticalCenter: parent.verticalCenter
-                        text: modelData
+                        text: qcRow.modelData.t + "  ›"
                         color: "#dbe4f0"
                         font.pixelSize: 11
+                    }
+                    MouseArea {
+                        id: qcm
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: appLauncher.launch(qcRow.modelData.id)
                     }
                 }
             }

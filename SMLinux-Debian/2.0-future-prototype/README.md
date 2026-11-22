@@ -1,5 +1,4 @@
-# SMLinux-Debian-2.0 — Future prototype
+# SMLinux-Debian 2.0
 
-Status: future prototype.
-
-This directory is reserved for planning and prototype work for the Debian-based experimental direction.
+**Status: ideas only.** Follows whatever SMLinux-Arch 2.0 proves out (see
+[SMLinux-Arch 2.0](../../SMLinux-Arch/2.0-future-prototype/README.md)).

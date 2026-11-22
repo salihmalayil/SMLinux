@@ -1,0 +1,14 @@
+NAME="SMLinux"
+PRETTY_NAME="SMLinux @VERSION@ (Hyprland + KDE Plasma)"
+ID=smlinux
+ID_LIKE=arch
+VERSION="@VERSION@ (Dawn)"
+VERSION_ID=@VERSION@
+VERSION_CODENAME=dawn
+BUILD_ID=@BUILD_ID@
+ANSI_COLOR="38;2;255;122;61"
+LOGO=smlinux
+HOME_URL="https://github.com/salihmalayil/SMLinux"
+DOCUMENTATION_URL="https://github.com/salihmalayil/SMLinux/tree/main/SMLinux-Arch/0.1-current-release"
+SUPPORT_URL="https://github.com/salihmalayil/SMLinux/issues"
+BUG_REPORT_URL="https://github.com/salihmalayil/SMLinux/issues"

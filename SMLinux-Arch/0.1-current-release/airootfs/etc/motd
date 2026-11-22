@@ -1,11 +1,8 @@
 
-  Welcome to SMLinux 0.1 - Hyprland + KDE Plasma.
-
-  Super+Space  apps        Super+Enter  terminal
-  Super+I      settings    Super+Escape power menu
-  Super+K      switch to KDE Plasma (KDE: "Switch to Hyprland" on the desktop)
-  Super+W      live / still wallpaper
+  Welcome to the SMLinux live USB (Hyprland + KDE Plasma).
 
   Live user: liveuser   password: smlinux
   To install: click the download icon in the dock, or run  sudo smlinux-install
+
+  (This message exists only on the live USB.)
 

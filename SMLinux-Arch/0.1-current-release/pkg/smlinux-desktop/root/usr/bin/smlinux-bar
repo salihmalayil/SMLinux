@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# smlinux-bar [toggle-dock]
+# Starts the SMLinux top bar and dock as two Waybar instances, so the dock can
+# be hidden on its own (Super+D). A personal ~/.config/waybar config wins.
+if [[ ${1:-} == toggle-dock ]]; then
+    pkill -USR1 -f 'waybar -c /usr/share/smlinux/waybar/dock.jsonc'
+    exit 0
+fi
+
+pkill -x waybar
+user="${XDG_CONFIG_HOME:-$HOME/.config}/waybar"
+if [[ -f $user/config.jsonc || -f $user/config ]]; then
+    waybar >/dev/null 2>&1 &
+    disown
+    exit 0
+fi
+
+d=/usr/share/smlinux/waybar
+waybar -c "$d/top.jsonc"  -s "$d/style.css" >/dev/null 2>&1 &
+disown
+waybar -c "$d/dock.jsonc" -s "$d/style.css" >/dev/null 2>&1 &
+disown

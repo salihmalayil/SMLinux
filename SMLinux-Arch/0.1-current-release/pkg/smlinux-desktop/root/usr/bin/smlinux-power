@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# SMLinux power menu (Hyprland). Log out, restart and shut down ask first and
+# close apps gracefully (hyprshutdown) so nothing is lost.
+items=($'  Lock' $'  Log out' $'  Suspend')
+# Hibernate only when it can work: swap is active and the kernel knows where to resume from
+if [[ -n $(swapon --noheadings 2>/dev/null) ]] && grep -q 'resume=' /proc/cmdline; then
+    items+=($'  Hibernate')
+fi
+items+=($'  Restart' $'  Shut down')
+
+choice=$(printf '%s\n' "${items[@]}" | smlinux-menu --dmenu --prompt "Power" \
+    --width 320 --height $(( 52 * ${#items[@]} + 70 )) --cache-file /dev/null) || exit 0
+
+confirm() {
+    local answer
+    answer=$(printf '%s\n' "No, cancel" "Yes, $1" | smlinux-menu --dmenu --prompt "$1?" \
+        --width 320 --height 180 --cache-file /dev/null) || return 1
+    [[ $answer == Yes* ]]
+}
+
+case "$choice" in
+    *Lock)        smlinux-lock ;;
+    *"Log out")   confirm "log out"   && hyprshutdown -t "Logging out…" ;;
+    *Suspend)     systemctl suspend ;;
+    *Hibernate)   confirm "hibernate" && systemctl hibernate ;;
+    *Restart)     confirm "restart"   && hyprshutdown --no-exit -t "Restarting…"   -p "systemctl reboot" ;;
+    *"Shut down") confirm "shut down" && hyprshutdown --no-exit -t "Shutting down…" -p "systemctl poweroff" ;;
+esac

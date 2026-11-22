@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Switch Desktop (KDE ⇄ Hyprland)
+Comment=Switch between KDE Plasma and Hyprland (Meta+K)
+Exec=smlinux-switch-desktop
+Icon=smlinux
+Categories=System;Settings;
+Keywords=kde;plasma;hyprland;desktop;session;switch;
+Terminal=false
+X-KDE-Shortcuts=Meta+K

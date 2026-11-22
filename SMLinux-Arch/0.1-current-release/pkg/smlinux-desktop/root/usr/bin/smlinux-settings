@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# SMLinux settings hub (Hyprland)
+wall=$(cat "$HOME/.config/smlinux/wallpaper" 2>/dev/null || echo live)
+if [[ $wall == live ]]; then wall_item=$'  Wallpaper: live → still'; else wall_item=$'  Wallpaper: still → live'; fi
+profile=$(powerprofilesctl get 2>/dev/null || echo "?")
+
+items=(
+    $'  Switch to KDE Plasma'
+    $'  Wi-Fi'
+    $'  Bluetooth'
+    $'  Sound'
+    "$wall_item"
+    $'  Power mode'"  ($profile)"
+    $'  Printers'
+    $'  Firewall'
+    $'  Software (Discover)'
+    $'  Edit my Hyprland config'
+)
+# Updating a live USB would fill its RAM disk, so only offer it on installed systems
+[[ -d /run/archiso ]] || items+=($'  Update system')
+
+choice=$(printf '%s\n' "${items[@]}" | smlinux-menu --dmenu --prompt "Settings" \
+    --width 420 --height 560 --cache-file /dev/null) || exit 0
+
+case "$choice" in
+    *"KDE Plasma"*) smlinux-switch-desktop plasma ;;
+    *Wi-Fi*)        smlinux-wifi ;;
+    *Bluetooth*)    blueman-manager ;;
+    *Sound*)        pavucontrol ;;
+    *Wallpaper*)    smlinux-wallpaper toggle ;;
+    *"Power mode"*)
+        p=$(printf '%s\n' power-saver balanced performance | smlinux-menu --dmenu --prompt "Power mode" \
+            --width 320 --height 230 --cache-file /dev/null) && powerprofilesctl set "$p" ;;
+    *Printers*)     kcmshell6 kcm_printer_manager ;;
+    *Firewall*)     kcmshell6 kcm_firewall ;;
+    *Software*)     plasma-discover ;;
+    *Hyprland*)     kitty --class smlinux-float -e nano "$HOME/.config/hypr/hyprland.lua" ;;
+    *Update*)       kitty --hold --title "Update system" -e sh -c \
+                        'sudo pacman -Sy --needed --noconfirm archlinux-keyring && sudo pacman -Su' ;;
+esac

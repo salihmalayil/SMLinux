@@ -1,7 +1,15 @@
 #!/usr/bin/env bash
-# Creates the live-session user on the ISO. Runs once per boot from smlinux-liveuser.service.
+# Live USB only: creates the live user before the login screen starts
+# (smlinux-liveuser.service, once per boot).
 set -e
 if ! id liveuser >/dev/null 2>&1; then
     useradd -m -G wheel,audio,video,input -s /bin/bash -c "SMLinux Live" liveuser
 fi
 echo 'liveuser:smlinux' | chpasswd
+
+# NVIDIA GPUs run Hyprland badly on the open-source nouveau driver (black
+# screen or heavy lag), and the live USB has no NVIDIA driver. Start the live
+# session in KDE Plasma there; the installer adds the real driver.
+if lspci -d 10de: 2>/dev/null | grep -qiE 'vga|3d|display'; then
+    /usr/bin/smlinux-set-session plasma
+fi

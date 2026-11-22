@@ -1,7 +1,7 @@
 [Unit]
 Description=Create SMLinux live user
 After=systemd-sysusers.service systemd-tmpfiles-setup.service
-Before=getty@tty1.service systemd-user-sessions.service
+Before=display-manager.service systemd-user-sessions.service
 
 [Service]
 Type=oneshot

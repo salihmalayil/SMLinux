@@ -1,32 +1,38 @@
+# Packages installed into the SMLinux-Ubuntu image (what end users get).
+# Build-only tools (compilers, CMake, Qt -dev packages) are in build-deps.list
+# and are removed from the image after the shell is compiled.
+
+# Session: login screen, window manager, taskbar
 sddm
 openbox
+tint2
 xorg
-xserver-xorg
 x11-xserver-utils
-build-essential
-cmake
-ninja-build
-qt6-base-dev
-qt6-declarative-dev
+
+# Qt runtime for the SMLinux shell
 qt6-wayland
-libqt6quickcontrols2-6
 qml6-module-qtquick
 qml6-module-qtquick-controls
 qml6-module-qtquick-layouts
+qml6-module-qtquick-window
+qt6-svg-plugins
+
+# Apps behind the shell's tiles
 nautilus
 firefox
 gnome-console
 gnome-control-center
 gnome-system-monitor
-network-manager
-pipewire
-wireplumber
-wine
-winetricks
-flatpak
 gnome-software
 gnome-software-plugin-flatpak
-software-properties-common
+flatpak
 update-manager
 gnome-user-share
 timeshift
+libglib2.0-bin
+
+# System
+network-manager
+pipewire
+wireplumber
+software-properties-common

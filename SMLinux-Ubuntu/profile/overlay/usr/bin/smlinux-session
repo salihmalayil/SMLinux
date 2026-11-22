@@ -1,0 +1,7 @@
+#!/bin/sh
+# SMLinux-Ubuntu session: Openbox window manager, the tint2 taskbar (lists and
+# switches open windows) and the SMLinux shell as the desktop layer.
+export XDG_CURRENT_DESKTOP=SMLinux
+tint2 &
+smlinux-shell &
+exec openbox

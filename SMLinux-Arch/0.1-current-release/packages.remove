@@ -1,0 +1,28 @@
+# Packages removed from Arch's releng (rescue/server) package list. A desktop
+# live USB doesn't need these, and dropping them keeps the ISO smaller.
+# Accessibility (brltty, espeakup) and hardware support stay.
+
+# disk cloning / imaging
+clonezilla
+partclone
+partimage
+fsarchiver
+
+# cloud images
+cloud-init
+
+# network diagnostics, servers and terminal apps
+nmap
+tcpdump
+darkhttpd
+lftp
+irssi
+lynx
+mc
+
+# VPN / dial-up clients (NetworkManager plugins cover the common VPNs)
+openconnect
+vpnc
+pptpclient
+xl2tpd
+wvdial

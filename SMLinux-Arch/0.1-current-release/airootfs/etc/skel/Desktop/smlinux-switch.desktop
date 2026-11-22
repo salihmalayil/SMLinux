@@ -1,7 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Switch to Hyprland
-Comment=Switch between KDE Plasma and Hyprland
-Exec=smlinux-switch-desktop
-Icon=smlinux
-Terminal=false

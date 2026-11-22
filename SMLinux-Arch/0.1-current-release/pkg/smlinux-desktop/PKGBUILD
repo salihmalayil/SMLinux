@@ -1,0 +1,110 @@
+# Maintainer: SMLinux project <https://github.com/salihmalayil/SMLinux>
+#
+# smlinux-desktop: everything that makes Arch Linux into SMLinux.
+# Every SMLinux file belongs to this package, so pacman can update, repair
+# (pacman -S smlinux-desktop) or remove it, and fixes reach installed systems
+# through the [smlinux] repository with a normal `pacman -Syu`.
+#
+# Built by ../../build.sh (which sets pkgver from ../../VERSION).
+
+pkgname=smlinux-desktop
+pkgver=0.1.1
+pkgrel=1
+pkgdesc="SMLinux desktop: Hyprland + KDE Plasma with one-button switching, live wallpaper and the SMLinux look"
+arch=('any')
+url="https://github.com/salihmalayil/SMLinux"
+license=('MIT')
+options=('!debug' '!strip')
+
+depends=(
+  # Login screen + sessions
+  sddm kwallet-pam
+
+  # Hyprland desktop
+  hyprland xdg-desktop-portal-hyprland xdg-desktop-portal-gtk hyprpolkitagent
+  hyprlock hypridle hyprshutdown hyprpicker
+  waybar wofi mako swaybg swayosd kitty
+  thunar gvfs tumbler
+  grim slurp wl-clipboard cliphist brightnessctl playerctl libnotify
+  network-manager-applet blueman qt6-wayland
+
+  # KDE Plasma desktop
+  plasma-desktop plasma-nm plasma-pa powerdevil kscreen bluedevil
+  breeze breeze-gtk kde-gtk-config systemsettings plasma-integration
+  xdg-desktop-portal-kde plasma-firewall print-manager
+  dolphin konsole spectacle ark kdialog kio-extras ffmpegthumbs
+
+  # Everyday apps
+  firefox gwenview okular kate haruna discover flatpak
+
+  # Live wallpaper (QML, shared by KDE and Hyprland)
+  qt6-declarative qt6-svg qt6-tools layer-shell-qt
+
+  # Graphics + hardware video decoding (AMD decoding is part of mesa)
+  mesa vulkan-intel vulkan-radeon intel-media-driver
+
+  # Audio, including firmware most modern Intel/AMD laptops need for sound
+  pipewire pipewire-pulse pipewire-alsa wireplumber pavucontrol
+  sof-firmware alsa-firmware alsa-utils
+
+  # Network, Bluetooth, power, printing, firewall
+  networkmanager bluez bluez-utils power-profiles-daemon cups ufw
+
+  # Filesystems + system tools
+  ntfs-3g exfatprogs dosfstools sudo archlinux-keyring pacman-contrib
+  pciutils fastfetch htop nano
+
+  # Fonts and themes (wqy-zenhei covers Chinese, Japanese and Korean)
+  noto-fonts noto-fonts-emoji wqy-zenhei ttf-jetbrains-mono-nerd inter-font
+  papirus-icon-theme gnome-themes-extra librsvg
+)
+makedepends=(librsvg breeze)
+backup=('etc/sddm.conf.d/10-smlinux.conf')
+
+# Flathub as a ready-made app source for Discover (signed by Flathub)
+source=("flathub.flatpakrepo::https://dl.flathub.org/repo/flathub.flatpakrepo")
+sha256sums=('SKIP')
+
+build() {
+  cd "$srcdir"
+
+  # PNG copy of the wallpaper for tools that can't read SVG (SDDM, KDE lock screen, hyprlock)
+  rsvg-convert -w 1920 -h 1080 \
+    "$startdir/root/usr/share/backgrounds/smlinux/wallpaper.svg" -o wallpaper.png
+
+  # System-wide KDE defaults: Breeze Dark colours, tangerine accent, Papirus icons, Inter.
+  # Qt apps read these in Plasma *and* in Hyprland (via QT_QPA_PLATFORMTHEME=kde),
+  # so the dark theme is right from the very first login.
+  {
+    printf '[General]\nColorScheme=BreezeDark\nAccentColor=255,122,61\n'
+    printf 'font=Inter,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1\n\n'
+    printf '[Icons]\nTheme=Papirus-Dark\n\n'
+    printf '[KDE]\nLookAndFeelPackage=org.kde.breezedark.desktop\n\n'
+    # every colour group of the Breeze Dark scheme, minus its own [General]/[KDE] headers
+    awk '/^\[/{skip = ($0 == "[General]" || $0 == "[KDE]")} !skip' \
+      /usr/share/color-schemes/BreezeDark.colors
+  } > kdeglobals
+
+  sed "s/@BUILD_ID@/$(date -u +%Y%m%d)/; s/@VERSION@/$pkgver/g" \
+    "$startdir/root/usr/share/smlinux/os-release" > os-release
+}
+
+package() {
+  cp -r "$startdir/root/." "$pkgdir/"
+
+  # Normalise permissions (the source tree may come from a Windows checkout)
+  find "$pkgdir" -type d -exec chmod 755 {} +
+  find "$pkgdir" -type f -exec chmod 644 {} +
+  chmod 755 "$pkgdir"/usr/bin/*
+  chmod 750 "$pkgdir/etc/sudoers.d"
+  chmod 440 "$pkgdir/etc/sudoers.d/smlinux-session"
+
+  install -Dm644 wallpaper.png  "$pkgdir/usr/share/backgrounds/smlinux/wallpaper.png"
+  install -Dm644 kdeglobals     "$pkgdir/etc/xdg/kdeglobals"
+  install -Dm644 os-release     "$pkgdir/usr/share/smlinux/os-release"
+  install -Dm644 flathub.flatpakrepo "$pkgdir/etc/flatpak/remotes.d/flathub.flatpakrepo"
+  install -Dm644 "$startdir/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+
+  # SDDM lists only the two SMLinux sessions (no X11 sessions exist)
+  install -dm755 "$pkgdir/usr/share/smlinux/xsessions"
+}

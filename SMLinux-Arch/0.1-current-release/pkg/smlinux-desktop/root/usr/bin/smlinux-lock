@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Lock the screen with the SMLinux hyprlock theme (or the user's own hyprlock.conf)
+pidof hyprlock >/dev/null && exit 0
+if [[ -f ${XDG_CONFIG_HOME:-$HOME/.config}/hypr/hyprlock.conf ]]; then
+    exec hyprlock
+fi
+exec hyprlock -c /usr/share/smlinux/hypr/hyprlock.conf

@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=SMLinux
+Comment=SMLinux desktop (Openbox + SMLinux shell)
+Exec=/usr/bin/smlinux-session
+Type=Application
+DesktopNames=SMLinux

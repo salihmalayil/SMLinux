@@ -1,0 +1,3 @@
+# Lets desktop users pick which desktop starts next (KDE Plasma or Hyprland)
+# without a password. Only these two exact commands are allowed.
+%wheel ALL=(root) NOPASSWD: /usr/bin/smlinux-set-session hyprland, /usr/bin/smlinux-set-session plasma

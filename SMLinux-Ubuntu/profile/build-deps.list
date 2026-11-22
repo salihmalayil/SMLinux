@@ -1,0 +1,7 @@
+# Needed only to compile the SMLinux shell inside the image; removed again
+# by scripts/build-iso.sh before the image is packed.
+build-essential
+cmake
+ninja-build
+qt6-base-dev
+qt6-declarative-dev

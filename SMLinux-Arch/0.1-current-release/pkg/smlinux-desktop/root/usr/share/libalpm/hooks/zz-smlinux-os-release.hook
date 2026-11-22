@@ -1,0 +1,13 @@
+# Keeps the SMLinux name in /usr/lib/os-release when Arch's filesystem package
+# (which owns that file) is installed or upgraded.
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = filesystem
+Target = smlinux-desktop
+
+[Action]
+Description = Applying SMLinux branding (os-release)...
+When = PostTransaction
+Exec = /usr/bin/cp -f /usr/share/smlinux/os-release /usr/lib/os-release

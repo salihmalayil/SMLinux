@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=SMLinux Settings
+Comment=Wi-Fi, Bluetooth, sound, power mode, printers, firewall and desktop settings
+Exec=smlinux-settings
+Icon=preferences-system
+Categories=Settings;
+OnlyShowIn=Hyprland;
+Terminal=false

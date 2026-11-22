@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# One-time SMLinux touches for KDE Plasma (runs from /etc/xdg/autostart).
+# Colours, accent, icons, fonts and the lock-screen wallpaper already come
+# from the system defaults in /etc/xdg, so they're right from the first login.
+# This only does what needs a running Plasma, and retries next login if it fails.
+flag="${XDG_STATE_HOME:-$HOME/.local/state}/smlinux/plasma-setup-done"
+[[ -f $flag ]] && exit 0
+sleep 5   # let plasmashell finish starting
+
+QDBUS=$(command -v qdbus6 || command -v qdbus || echo /usr/lib/qt6/bin/qdbus)
+ok=1
+
+# Live wallpaper on every desktop
+"$QDBUS" org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript '
+    desktops().forEach(function (d) { d.wallpaperPlugin = "org.smlinux.liquid"; });
+' >/dev/null 2>&1 || ok=0
+
+# Desktop icon to switch back to Hyprland (executable = trusted by Plasma)
+desk=$(xdg-user-dir DESKTOP 2>/dev/null || echo "$HOME/Desktop")
+mkdir -p "$desk"
+install -m755 /usr/share/applications/smlinux-switch.desktop "$desk/smlinux-switch.desktop" || ok=0
+# Live USB: an install icon too
+if [[ -f /usr/share/applications/smlinux-install.desktop ]]; then
+    install -m755 /usr/share/applications/smlinux-install.desktop "$desk/smlinux-install.desktop" || ok=0
+fi
+
+# Plasma has its own Bluetooth tray icon: don't show blueman's as well
+mkdir -p "$HOME/.config/autostart"
+printf '[Desktop Entry]\nType=Application\nName=Blueman Applet\nExec=blueman-applet\nHidden=true\n' \
+    > "$HOME/.config/autostart/blueman.desktop"
+
+if (( ok )); then
+    mkdir -p "$(dirname "$flag")"
+    touch "$flag"
+    notify-send -i smlinux "Welcome to SMLinux · KDE Plasma" \
+        "Press Meta+K or double-click \"Switch Desktop\" on the desktop to go to Hyprland."
+fi

@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# smlinux-session hyprland|plasma
+# Started by SDDM from /usr/share/smlinux/wayland-sessions/. Prepares the
+# environment, runs the desktop, and handles the crash fallback.
+session=${1:-hyprland}
+state="${XDG_STATE_HOME:-$HOME/.local/state}/smlinux"
+log="$state/session.log"
+mkdir -p "$state" "$HOME/.config/hypr"
+
+# Every account gets the SMLinux Hyprland config, including accounts created
+# without /etc/skel. The user file only loads the package's defaults, so
+# updates to the defaults reach everyone through pacman.
+if [[ ! -f $HOME/.config/hypr/hyprland.lua ]]; then
+    install -m644 /usr/share/smlinux/hypr/user-template.lua "$HOME/.config/hypr/hyprland.lua"
+fi
+
+# Facts the Hyprland config uses
+if [[ -d /run/archiso ]]; then export SMLINUX_LIVE=1; else export SMLINUX_LIVE=0; fi
+if systemd-detect-virt --quiet; then export SMLINUX_VM=1; else export SMLINUX_VM=0; fi
+
+# Keyboard layout chosen at install time (written by localectl / smlinux-install)
+layout="" variant=""
+kb=/etc/X11/xorg.conf.d/00-keyboard.conf
+if [[ -f $kb ]]; then
+    layout=$(sed -n 's/.*Option[[:space:]]*"XkbLayout"[[:space:]]*"\([^"]*\)".*/\1/p' "$kb" | head -n1)
+    variant=$(sed -n 's/.*Option[[:space:]]*"XkbVariant"[[:space:]]*"\([^"]*\)".*/\1/p' "$kb" | head -n1)
+fi
+export SMLINUX_KB_LAYOUT=${layout:-us} SMLINUX_KB_VARIANT=${variant:-}
+
+# NVIDIA proprietary driver
+if [[ -d /proc/driver/nvidia ]]; then
+    export LIBVA_DRIVER_NAME=nvidia __GLX_VENDOR_LIBRARY_NAME=nvidia NVD_BACKEND=direct
+fi
+
+started=$SECONDS
+case $session in
+    plasma)
+        /usr/lib/plasma-dbus-run-session-if-needed /usr/bin/startplasma-wayland
+        rc=$? ;;
+    *)
+        session=hyprland
+        start-hyprland
+        rc=$? ;;
+esac
+runtime=$(( SECONDS - started ))
+echo "$(date '+%F %T') $session exited with code $rc after ${runtime}s" >> "$log"
+
+# Crash fallback. A normal logout exits with code 0 and never triggers this,
+# however quick it is. A crash (non-zero exit) within the first minute means
+# the desktop can't run here, so the next login uses the other desktop.
+if (( rc != 0 && runtime < 60 )); then
+    other=plasma
+    [[ $session == plasma ]] && other=hyprland
+    if sudo -n /usr/bin/smlinux-set-session "$other"; then
+        echo "  -> $session crashed at start; next login uses $other" >> "$log"
+    fi
+fi
+exit "$rc"

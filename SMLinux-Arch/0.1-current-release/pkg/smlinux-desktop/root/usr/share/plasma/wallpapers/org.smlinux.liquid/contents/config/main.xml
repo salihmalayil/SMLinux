@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0 http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
+  <kcfgfile name=""/>
+  <group name="General">
+    <entry name="Paused" type="Bool">
+      <label>Pause the animation</label>
+      <default>false</default>
+    </entry>
+    <entry name="Speed" type="Double">
+      <label>Animation speed</label>
+      <default>1.0</default>
+    </entry>
+    <entry name="Quality" type="Int">
+      <label>0 = battery saver, 1 = full quality</label>
+      <default>1</default>
+    </entry>
+  </group>
+</kcfg>

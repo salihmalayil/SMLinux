@@ -9,11 +9,12 @@ SMLinux is an experimental Ubuntu-based Linux desktop project. The goal is a cle
 - `desktop/shell/` — original Qt 6/QML desktop-shell source.
 - `branding/` — original SMLinux wallpaper artwork.
 - `profile/` — package selection and SDDM configuration overlay.
-- `releases/` — release notes and planned milestones.
+- `../0.1-current-release/`, `../1.0-next-big-release/`, `../2.0-future-prototype/`: release notes and planned milestones.
+- `../scripts/build-iso.sh`: experimental ISO build script.
 
 ## Current prototype: 0.1
 
-The current shell prototype includes a full-screen desktop overview, app search, launcher tiles, a bottom dock, a basic Control Center panel, and launch hooks for common Ubuntu desktop applications. Launchers depend on their target applications being installed; some items remain placeholders.
+The shell is a desktop layer under your app windows (Openbox, with the tint2 taskbar for switching windows). It has a live clock, a real online/offline indicator, search across all installed apps, launcher tiles that hide when their app isn't installed, a dock, and a Control Center that opens the real Network, Sound, Display and Power settings.
 
 ## Build the desktop shell
 
@@ -28,7 +29,7 @@ Run the resulting `smlinux-shell` binary from a graphical session with the requi
 
 ## Full ISO build
 
-This repository contains desktop-shell source and selected system configuration, not a complete reproducible ISO build script. The upstream Ubuntu image and generated root filesystem are intentionally excluded because they are large third-party/generated artifacts with separate licensing and redistribution considerations.
+`sudo bash scripts/build-iso.sh` (from `SMLinux-Ubuntu/`, on Ubuntu or Debian) builds the live ISO from scratch with debootstrap, compiles the shell inside the image, and removes the build tools again. **It is experimental and hasn't been run end to end yet.**
 
 ## Release plan
 
@@ -36,7 +37,7 @@ This repository contains desktop-shell source and selected system configuration,
 - **1.0 — Planned stable milestone:** reproducible build, tested live session and installer, verified integrations, documentation, and release checks.
 - **2.0 — Planned major milestone:** broader desktop integration, refined system tools, update/recovery workflows, and expanded hardware testing.
 
-See `releases/` for milestone notes.
+See the `0.1`, `1.0` and `2.0` folders in `SMLinux-Ubuntu/` for milestone notes.
 
 ## Contributing
 
@@ -44,4 +45,4 @@ Issues and pull requests are welcome. Please describe the environment you tested
 
 ## Licensing and third-party components
 
-A project-wide open-source license has not yet been selected. Until a license is added, do not assume permission to reuse or redistribute original SMLinux code. Ubuntu, Qt, and bundled packages retain their own licenses and trademarks.
+Original SMLinux code is MIT licensed (see the repository [LICENSE](../../LICENSE)). Ubuntu, Qt, and bundled packages retain their own licenses and trademarks.

@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=SMLinux · KDE Plasma
+Comment=Full KDE Plasma desktop with the SMLinux look
+Exec=/usr/bin/smlinux-session plasma
+Type=Application
+DesktopNames=KDE
