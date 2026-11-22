@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# smlinux-hypr-exit [logout|reboot|poweroff] [label]
+# Leaves Hyprland gracefully: hyprshutdown asks every app to close (so they can
+# save), then this script logs out / restarts / shuts down itself.
+# hyprshutdown's own exit uses the pre-0.57 command syntax, which Hyprland 0.57
+# ignores, so the final step is done here with the Lua dispatcher.
+action=${1:-logout}
+label=${2:-"Logging out…"}
+
+# Detach first: closing apps also closes the terminal or menu that started us
+if [[ -z ${SMLINUX_DETACHED:-} ]]; then
+    SMLINUX_DETACHED=1 setsid -f "$0" "$@" </dev/null >/dev/null 2>&1
+    exit 0
+fi
+
+# Ask apps to close; never wait more than 20 seconds for a stuck one
+timeout 20 hyprshutdown --no-exit --no-fork -t "$label" || true
+
+case $action in
+    reboot)   systemctl reboot ;;
+    poweroff) systemctl poweroff ;;
+    *)        hyprctl dispatch 'hl.dsp.exit()' ;;
+esac

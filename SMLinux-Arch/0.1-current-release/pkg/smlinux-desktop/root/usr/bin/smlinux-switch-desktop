@@ -45,5 +45,5 @@ if [[ $current == plasma ]]; then
     QDBUS=$(command -v qdbus6 || command -v qdbus || echo /usr/lib/qt6/bin/qdbus)
     "$QDBUS" org.kde.Shutdown /Shutdown logout       # Plasma's normal logout: apps can save first
 else
-    hyprshutdown -t "Switching to $(pretty "$target")…"   # closes apps gracefully, then exits Hyprland
+    smlinux-hypr-exit logout "Switching to $(pretty "$target")…"   # closes apps gracefully, then exits Hyprland
 fi

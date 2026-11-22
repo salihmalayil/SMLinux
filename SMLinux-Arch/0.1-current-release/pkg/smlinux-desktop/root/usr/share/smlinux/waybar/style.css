@@ -55,7 +55,9 @@ window#waybar.top.empty #window {
   border-color: transparent;
 }
 
-#custom-logo {
+/* "window#waybar.top" prefix: must be as specific as the pill rule above,
+   or the pill's background would hide this gradient (and the dark text) */
+window#waybar.top #custom-logo {
   font-weight: 800;
   letter-spacing: 0.5px;
   color: @ink-solid;
@@ -91,7 +93,7 @@ window#waybar.top.empty #window {
 #network.disconnected, #pulseaudio.muted { color: @muted; }
 
 #custom-dnd { font-family: "JetBrainsMono Nerd Font"; color: @text; }
-#custom-dnd.on { color: @ink-solid; background-image: linear-gradient(120deg, @coral, @tangerine); }
+window#waybar.top #custom-dnd.on { color: @ink-solid; background-image: linear-gradient(120deg, @coral, @tangerine); }
 #power-profiles-daemon { font-family: "JetBrainsMono Nerd Font"; color: @marigold; }
 #power-profiles-daemon.performance { color: @coral; }
 #power-profiles-daemon.power-saver { color: @mint; }

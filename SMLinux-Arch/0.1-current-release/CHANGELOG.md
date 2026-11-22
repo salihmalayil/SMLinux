@@ -42,6 +42,7 @@ A big fix-up release based on a full review of 0.1 (numbers refer to that review
 - **Switching desktops no longer kills apps** (#15). Apps are asked to close (Hyprland:
   hyprshutdown, KDE: normal logout), so you can save. On an installed system the login screen
   opens with the other desktop selected. KDE also gets **Meta+K** to switch back (#40).
+  Log out / Restart / Shut down from the Hyprland power menu use the same graceful path.
 - **Bluetooth tray icon in Hyprland** (#16) and no duplicate icon in KDE.
 - **Qt apps are dark in Hyprland too** (#17): system-wide Breeze Dark defaults + KDE platform theme.
   GTK4/libadwaita apps are dark as well.
@@ -104,6 +105,15 @@ A big fix-up release based on a full review of 0.1 (numbers refer to that review
   aren't installed are hidden.
 - Developer tools and Wine are out of the user package list (#76).
 - **ISO build script** added (#77): experimental, not yet run end to end.
+
+### Found and fixed while testing 0.1.1 in a virtual machine
+- **The live USB could hang forever without internet.** Arch's base profile waits for the
+  clock to sync online before its key setup; with a graphical login that blocked the desktop.
+  The wait is now capped at 15 seconds (an offline boot reaches the desktop in about a minute).
+- **Log out, Restart, Shut down and the desktop switch could leave an empty screen** in
+  Hyprland: `hyprshutdown` closed the apps but couldn't exit Hyprland 0.57 (old command syntax).
+  SMLinux now finishes the exit itself.
+- The "SMLinux" logo in the top bar was invisible (CSS), and fastfetch mislabelled the shell.
 
 ### Still open
 - **Not tested on real hardware yet** (#65). It's checked in a virtual machine only.

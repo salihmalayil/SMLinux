@@ -13,7 +13,7 @@
   },
   "modules": [
     "title", "separator",
-    "os", "kernel", "uptime", "packages", "shell", "de", "wm", "terminal",
+    "os", "kernel", "uptime", "packages", "de", "wm",
     "cpu", "gpu", "memory", "disk", "battery",
     "break", "colors"
   ]

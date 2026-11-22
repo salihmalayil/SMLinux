@@ -20,9 +20,9 @@ confirm() {
 
 case "$choice" in
     *Lock)        smlinux-lock ;;
-    *"Log out")   confirm "log out"   && hyprshutdown -t "Logging out…" ;;
+    *"Log out")   confirm "log out"   && smlinux-hypr-exit logout   "Logging out…" ;;
     *Suspend)     systemctl suspend ;;
     *Hibernate)   confirm "hibernate" && systemctl hibernate ;;
-    *Restart)     confirm "restart"   && hyprshutdown --no-exit -t "Restarting…"   -p "systemctl reboot" ;;
-    *"Shut down") confirm "shut down" && hyprshutdown --no-exit -t "Shutting down…" -p "systemctl poweroff" ;;
+    *Restart)     confirm "restart"   && smlinux-hypr-exit reboot   "Restarting…" ;;
+    *"Shut down") confirm "shut down" && smlinux-hypr-exit poweroff "Shutting down…" ;;
 esac
