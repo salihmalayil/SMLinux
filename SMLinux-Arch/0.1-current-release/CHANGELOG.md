@@ -19,6 +19,7 @@ A fresh start for SMLinux, rebuilt from the ground up on Arch Linux.
 - Themed terminal (kitty), notifications (mako), lock screen (hyprlock) and GTK apps.
 
 ### System
+- Hyprland config written in **Lua** (`~/.config/hypr/hyprland.lua`), the format Hyprland 0.57+ requires.
 - Live USB logs straight into the desktop (`liveuser` / `smlinux`).
 - `smlinux-install`: installs to disk with archinstall, then adds the SMLinux desktop.
 - Settings hub, power menu and screenshot tool.

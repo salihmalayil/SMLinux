@@ -20,7 +20,7 @@ case "$choice" in
     *Network*)      nm-connection-editor ;;
     *Bluetooth*)    blueman-manager ;;
     *Sound*)        pavucontrol ;;
-    *Hyprland*)     kitty -e nano ~/.config/hypr/hyprland.conf ;;
+    *Hyprland*)     kitty -e nano ~/.config/hypr/hyprland.lua ;;
     *Waybar*)       kitty -e nano ~/.config/waybar/config.jsonc ;;
     *Update*)       kitty --hold -e sudo pacman -Syu ;;
 esac
